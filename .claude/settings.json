@@ -34,10 +34,26 @@
       "Bash(mv reference/Tymko-PRD-MVP-v2.0.md reference/Tymko-PRD-MVP-v2.0.md)",
       "Bash(find c:DevelopmentMCK.Tymko.Websrc -type f \\\\\\(-name *.php -o -name *.js -o -name *.blade.php -o -name *.json -o -name *.env* -o -name *.md \\\\\\) ! -path */vendor/* ! -path */node_modules/* ! -path */storage/logs/*)",
       "Bash(git remote:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(php -r \"echo ''PHP works: '' . PHP_VERSION . PHP_EOL;\")",
+      "Bash(php -r \"echo ''test'';\")",
+      "Bash(sqlite3 database/database.sqlite \"SELECT name FROM sqlite_master WHERE type=''''table'''' AND name NOT LIKE ''''sqlite_%'''';\")",
+      "Bash(php -r \"echo ''hello'' . chr\\(10\\);\")",
+      "Bash(php -r \"echo phpinfo\\(\\);\")",
+      "Bash(find c:DevelopmentMCK.Tymko.Websrc -type f \\\\\\(-name *.php -o -name *.js -o -name *.json -o -name *.blade.php -o -name *.css -o -name *.md \\\\\\) ! -path */vendor/* ! -path */node_modules/* ! -path */storage/logs/*)",
+      "Bash(find C:DevelopmentMCK.Kasparikova.Web -type f \\\\\\(-name .env* -o -name *.php -o -name *.js \\\\\\) ! -path */vendor/* ! -path */node_modules/*)",
+      "Bash(find c:DevelopmentMCK.Tymko.Web -type f \\\\\\(-name *.blade.php -o -name *.html \\\\\\) ! -path */vendor/* ! -path */node_modules/* ! -path */storage/framework/*)",
+      "Bash(herd links:*)",
+      "Bash(herd list:*)",
+      "Bash(herd --version)",
+      "Bash(herd link:*)",
+      "Read(//c/Users/MCK/.claude/projects/c--Development-MCK-Tymka-Web/70cb5c3d-d23b-4b37-a3e5-b014d1f7d442/tool-results/**)"
     ],
     "additionalDirectories": [
-      "C:\\Users\\MCK\\.claude\\projects\\c--Development-MCK-Tymko-Web\\memory"
+      "C:\\Users\\MCK\\.claude\\projects\\c--Development-MCK-Tymko-Web\\memory",
+      "\\tmp"
     ]
   }
 }
