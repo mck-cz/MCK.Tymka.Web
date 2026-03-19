@@ -8,7 +8,7 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'app_name' => 'Tymko',
+    'app_name' => 'Tymka',
     'tagline' => 'Platform for managing sports teams and clubs',
 
     // Navigation
@@ -30,7 +30,7 @@ return [
     'nav.section_admin' => 'Administration',
 
     // Auth
-    'auth.login_title' => 'Sign in to Tymko',
+    'auth.login_title' => 'Sign in to Tymka',
     'auth.email' => 'Email',
     'auth.password' => 'Password',
     'auth.remember_me' => 'Remember me',
@@ -57,7 +57,7 @@ return [
     'dashboard.upcoming_events' => 'Upcoming events',
     'dashboard.pending_responses' => 'Pending responses',
     'dashboard.my_teams' => 'My teams',
-    'dashboard.welcome' => 'Welcome to Tymko',
+    'dashboard.welcome' => 'Welcome to Tymka',
     'dashboard.no_events' => 'No upcoming events.',
     'dashboard.events_count' => ':count upcoming events',
     'dashboard.teams_count' => ':count teams',
@@ -350,7 +350,7 @@ return [
     'payments.thanked' => 'Thanked',
 
     // Onboarding
-    'onboarding.title' => 'Welcome to Tymko!',
+    'onboarding.title' => 'Welcome to Tymka!',
     'onboarding.subtitle' => 'Get started by creating or joining a club.',
     'onboarding.select_role' => 'What is your role?',
     'onboarding.role_parent' => 'Parent',
@@ -660,6 +660,7 @@ return [
     'comments.placeholder' => 'Write a comment...',
     'comments.posted' => 'Comment posted.',
     'comments.deleted' => 'Comment deleted.',
+    'comments.no_comments' => 'No comments yet.',
 
     // Team Wall
     'wall.title' => 'Wall',
@@ -676,6 +677,10 @@ return [
     'wall.voted' => 'Vote recorded.',
     'wall.no_posts' => 'No posts yet.',
     'wall.total_votes' => 'Total votes',
+    'wall.post_title' => 'Post title',
+    'wall.post_title_placeholder' => 'Enter title...',
+    'wall.read_more' => 'Read more',
+    'wall.back_to_wall' => 'Back to wall',
 
     // Notifications
     'notifications.title' => 'Notifications',

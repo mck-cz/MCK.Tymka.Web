@@ -8,7 +8,7 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'app_name' => 'Tymko',
+    'app_name' => 'Tymka',
     'tagline' => 'Platforma pro správu sportovních týmů a kroužků',
 
     // Navigation
@@ -30,7 +30,7 @@ return [
     'nav.section_admin' => 'Administrace',
 
     // Auth
-    'auth.login_title' => 'Přihlášení do Tymko',
+    'auth.login_title' => 'Přihlášení do Tymka',
     'auth.email' => 'E-mail',
     'auth.password' => 'Heslo',
     'auth.remember_me' => 'Zapamatovat si mě',
@@ -57,7 +57,7 @@ return [
     'dashboard.upcoming_events' => 'Nadcházející události',
     'dashboard.pending_responses' => 'Čekající odpovědi',
     'dashboard.my_teams' => 'Moje týmy',
-    'dashboard.welcome' => 'Vítejte v Tymko',
+    'dashboard.welcome' => 'Vítejte v Tymka',
     'dashboard.no_events' => 'Žádné nadcházející události.',
     'dashboard.events_count' => ':count nadcházejících událostí',
     'dashboard.teams_count' => ':count týmů',
@@ -350,7 +350,7 @@ return [
     'payments.thanked' => 'Poděkováno',
 
     // Onboarding
-    'onboarding.title' => 'Vítejte v Tymko!',
+    'onboarding.title' => 'Vítejte v Tymka!',
     'onboarding.subtitle' => 'Začněte vytvořením nebo připojením ke klubu.',
     'onboarding.select_role' => 'Jaká je vaše role?',
     'onboarding.role_parent' => 'Rodič',
@@ -660,6 +660,7 @@ return [
     'comments.placeholder' => 'Napište komentář...',
     'comments.posted' => 'Komentář přidán.',
     'comments.deleted' => 'Komentář smazán.',
+    'comments.no_comments' => 'Zatím žádné komentáře.',
 
     // Team Wall
     'wall.title' => 'Zeď',
@@ -676,6 +677,10 @@ return [
     'wall.voted' => 'Hlas zaznamenán.',
     'wall.no_posts' => 'Zatím žádné příspěvky.',
     'wall.total_votes' => 'Celkem hlasů',
+    'wall.post_title' => 'Nadpis příspěvku',
+    'wall.post_title_placeholder' => 'Zadejte nadpis...',
+    'wall.read_more' => 'Číst dále',
+    'wall.back_to_wall' => 'Zpět na zeď',
 
     // Notifications
     'notifications.title' => 'Upozornění',

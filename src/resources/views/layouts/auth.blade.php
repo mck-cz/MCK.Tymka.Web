@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', config('app.name', 'Tymko'))</title>
+    <title>@yield('title', config('app.name', 'Tymka'))</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,7 +25,7 @@
                 <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
                     <span class="text-white font-semibold text-xl">T</span>
                 </div>
-                <span class="font-semibold text-2xl text-text">Tymko</span>
+                <span class="font-semibold text-2xl text-text">Tymka</span>
             </a>
         </div>
 

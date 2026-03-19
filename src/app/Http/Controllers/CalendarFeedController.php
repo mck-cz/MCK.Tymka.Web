@@ -110,14 +110,14 @@ class CalendarFeedController extends Controller
         // Generate iCal
         $ical = "BEGIN:VCALENDAR\r\n";
         $ical .= "VERSION:2.0\r\n";
-        $ical .= "PRODID:-//Tymko//Calendar//EN\r\n";
+        $ical .= "PRODID:-//Tymka//Calendar//EN\r\n";
         $ical .= "CALSCALE:GREGORIAN\r\n";
         $ical .= "METHOD:PUBLISH\r\n";
         $ical .= "X-WR-CALNAME:" . $this->escapeIcal($feed->name) . "\r\n";
 
         foreach ($events as $event) {
             $ical .= "BEGIN:VEVENT\r\n";
-            $ical .= "UID:" . $event->id . "@tymko\r\n";
+            $ical .= "UID:" . $event->id . "@tymka\r\n";
             $ical .= "DTSTART:" . $event->starts_at->format('Ymd\THis') . "\r\n";
             if ($event->ends_at) {
                 $ical .= "DTEND:" . $event->ends_at->format('Ymd\THis') . "\r\n";
@@ -141,7 +141,7 @@ class CalendarFeedController extends Controller
 
         return response($ical, 200, [
             'Content-Type' => 'text/calendar; charset=utf-8',
-            'Content-Disposition' => 'inline; filename="tymko.ics"',
+            'Content-Disposition' => 'inline; filename="tymka.ics"',
         ]);
     }
 

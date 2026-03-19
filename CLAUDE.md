@@ -1,7 +1,7 @@
 # CLAUDE.md – instrukce pro Claude Code
 
 ## Projekt
-**Tymko** — platforma pro správu sportovních týmů a kroužků (MVP).
+**Tymka** — platforma pro správu sportovních týmů a kroužků (MVP).
 
 ## Struktura repozitáře
 - `src/` – veškeré zdrojové kódy (Laravel aplikace, nasazují se do document rootu)
@@ -20,10 +20,10 @@
 - **Lokalizace:** CZ/EN — všechny stringy v `/lang/{cs,en}/` souborech
 
 ## Lokální vývoj
-- **Laravel Herd** → `http://tymko.test` (document root: `src/public`)
+- **Laravel Herd** → `http://tymka.test` (document root: `src/public`)
 - SQLite databáze: `src/database/database.sqlite`
 
-## Barvy (Tymko "Field Green" theme)
+## Barvy (Tymka "Field Green" theme)
 - Primární: `#1B6B4A` (`--color-primary`)
 - Primární tmavá: `#0F4A32` (`--color-primary-dark`)
 - Primární světlá: `#E8F5EE` (`--color-primary-light`)

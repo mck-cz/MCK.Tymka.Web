@@ -203,6 +203,7 @@ Route::middleware(['auth', 'club.selected'])->group(function () {
     Route::get('/teams/{team}/wall', [TeamPostController::class, 'index'])->name('teams.wall');
     Route::post('/teams/{team}/posts', [TeamPostController::class, 'store'])->name('team-posts.store');
     Route::post('/team-posts/upload', [TeamPostController::class, 'uploadAttachment'])->name('team-posts.upload');
+    Route::get('/team-posts/{teamPost}', [TeamPostController::class, 'show'])->name('team-posts.show');
     Route::delete('/team-posts/{teamPost}', [TeamPostController::class, 'destroy'])->name('team-posts.destroy');
     Route::post('/team-posts/{teamPost}/comments', [TeamPostController::class, 'storeComment'])->name('team-post-comments.store');
     Route::post('/poll-options/{pollOption}/vote', [TeamPostController::class, 'vote'])->name('poll-votes.store');

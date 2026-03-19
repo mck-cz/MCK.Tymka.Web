@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', config('app.name', 'Tymko'))</title>
+    <title>@yield('title', config('app.name', 'Tymka'))</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -56,7 +56,7 @@
                         x-data
                         :class="$store.sidebar.expanded ? 'lg:opacity-100 lg:w-auto' : 'lg:opacity-0 lg:w-0'"
                         class="font-semibold text-lg whitespace-nowrap transition-all duration-200 overflow-hidden tracking-tight"
-                    >Tymko</span>
+                    >Tymka</span>
                 </a>
             </div>
 
@@ -354,7 +354,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                 </button>
-                <span class="ml-3 font-semibold text-base">Tymko</span>
+                <span class="ml-3 font-semibold text-base">Tymka</span>
             </header>
 
             <!-- Page content -->

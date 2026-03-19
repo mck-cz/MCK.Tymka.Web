@@ -38,7 +38,7 @@ class PlaceholderMemberController extends Controller
         $placeholder = User::create([
             'first_name' => $validated['first_name'],
             'last_name' => $validated['last_name'],
-            'email' => 'placeholder_' . Str::uuid() . '@tymko.placeholder',
+            'email' => 'placeholder_' . Str::uuid() . '@tymka.placeholder',
             'password' => bcrypt(Str::random(64)),
             'status' => 'placeholder',
             'sex' => $validated['sex'] ?? null,

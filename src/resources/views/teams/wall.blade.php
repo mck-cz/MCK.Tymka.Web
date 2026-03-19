@@ -34,6 +34,13 @@
                     </button>
                 </div>
 
+                {{-- Title --}}
+                <div>
+                    <input type="text" name="title" class="form-input w-full font-semibold"
+                        placeholder="{{ __('messages.wall.post_title_placeholder') }}" required
+                        x-ref="titleInput">
+                </div>
+
                 {{-- Trix editor for message posts --}}
                 <div x-show="postType === 'message'" x-cloak>
                     <input id="trix-body" type="hidden" name="body" x-ref="trixInput">
@@ -70,10 +77,11 @@
     </div>
     @endif
 
-    {{-- Posts --}}
+    {{-- Posts as article previews --}}
     @forelse($posts as $post)
         <div class="card mb-4">
             <div class="card-body">
+                {{-- Author + meta --}}
                 <div class="flex gap-3 mb-3">
                     <div class="w-8 h-8 rounded-full bg-primary-light text-primary flex items-center justify-center text-xs font-medium shrink-0">
                         {{ strtoupper(mb_substr($post->user->first_name, 0, 1)) }}{{ strtoupper(mb_substr($post->user->last_name, 0, 1)) }}
@@ -90,11 +98,34 @@
                                 </form>
                             @endif
                         </div>
-                        <div class="trix-render text-sm mt-1">{!! $post->body !!}</div>
                     </div>
                 </div>
 
-                {{-- Poll options --}}
+                {{-- Article title --}}
+                @if($post->title)
+                    <h2 class="text-lg font-semibold mb-2">
+                        <a href="{{ route('team-posts.show', $post) }}" class="hover:text-primary transition-colors">
+                            {{ $post->title }}
+                        </a>
+                    </h2>
+                @endif
+
+                {{-- Excerpt (stripped text, max 200 chars) --}}
+                @if($post->post_type === 'message')
+                    @php
+                        $plainText = strip_tags($post->body);
+                        $excerpt = mb_strlen($plainText) > 200 ? mb_substr($plainText, 0, 200) . '…' : $plainText;
+                    @endphp
+                    <p class="text-sm text-text-secondary mb-3">{{ $excerpt }}</p>
+
+                    @if(mb_strlen($plainText) > 200 || str_contains($post->body, '<img') || str_contains($post->body, '<figure'))
+                        <a href="{{ route('team-posts.show', $post) }}" class="text-sm text-primary font-medium hover:underline">
+                            {{ __('messages.wall.read_more') }} →
+                        </a>
+                    @endif
+                @endif
+
+                {{-- Poll options (inline, no need for detail page) --}}
                 @if($post->post_type === 'poll' && $post->pollOptions->isNotEmpty())
                     @php
                         $totalVotes = $post->pollOptions->sum(fn ($o) => $o->pollVotes->count());
@@ -124,34 +155,13 @@
                     <p class="text-xs text-muted">{{ __('messages.wall.total_votes') }}: {{ $totalVotes }}</p>
                 @endif
 
-                {{-- Comments --}}
+                {{-- Comment count --}}
                 @if($post->teamPostComments->isNotEmpty())
-                    <div class="mt-3 pt-3 border-t border-border space-y-2">
-                        @foreach($post->teamPostComments->sortBy('created_at') as $comment)
-                            <div class="flex gap-2">
-                                <div class="w-6 h-6 rounded-full bg-primary-light text-primary flex items-center justify-center text-[10px] font-medium shrink-0">
-                                    {{ strtoupper(mb_substr($comment->user->first_name, 0, 1)) }}{{ strtoupper(mb_substr($comment->user->last_name, 0, 1)) }}
-                                </div>
-                                <div>
-                                    <span class="text-xs font-medium">{{ $comment->user->full_name }}</span>
-                                    <span class="text-xs text-muted ml-1">{{ $comment->created_at->diffForHumans() }}</span>
-                                    <p class="text-sm">{{ $comment->body }}</p>
-                                </div>
-                            </div>
-                        @endforeach
+                    <div class="mt-3 pt-3 border-t border-border">
+                        <a href="{{ route('team-posts.show', $post) }}" class="text-sm text-muted hover:text-primary">
+                            {{ $post->teamPostComments->count() }} {{ __('messages.wall.comment_posted') }}
+                        </a>
                     </div>
-                @endif
-
-                {{-- Add comment --}}
-                @if($isDirectMember ?? false)
-                <div class="mt-3 pt-3 border-t border-border">
-                    <form action="{{ route('team-post-comments.store', $post) }}" method="POST" class="flex gap-2">
-                        @csrf
-                        <input type="text" name="body" placeholder="{{ __('messages.comments.placeholder') }}"
-                            class="form-input w-full text-sm" required>
-                        <button type="submit" class="btn-ghost text-sm shrink-0">{{ __('messages.messages.send') }}</button>
-                    </form>
-                </div>
                 @endif
             </div>
         </div>
@@ -182,6 +192,52 @@ function wallPostForm() {
                 if (attachment.file) {
                     this.uploadAttachment(attachment);
                 }
+            });
+
+            // Enable image resizing after attachment is inserted
+            editor.addEventListener('trix-attachment-add', (event) => {
+                setTimeout(() => this.enableImageResize(editor), 100);
+            });
+        },
+
+        enableImageResize(editor) {
+            const figures = editor.element.querySelectorAll('figure[data-trix-attachment]');
+            figures.forEach(figure => {
+                if (figure.dataset.resizable) return;
+                figure.dataset.resizable = 'true';
+
+                const img = figure.querySelector('img');
+                if (!img) return;
+
+                // Create resize handle
+                const handle = document.createElement('div');
+                handle.className = 'image-resize-handle';
+                figure.style.position = 'relative';
+                figure.style.display = 'inline-block';
+                figure.appendChild(handle);
+
+                let startX, startWidth;
+
+                handle.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    startX = e.clientX;
+                    startWidth = img.offsetWidth;
+
+                    const onMouseMove = (e) => {
+                        const newWidth = Math.max(100, startWidth + (e.clientX - startX));
+                        img.style.width = newWidth + 'px';
+                        img.style.height = 'auto';
+                    };
+
+                    const onMouseUp = () => {
+                        document.removeEventListener('mousemove', onMouseMove);
+                        document.removeEventListener('mouseup', onMouseUp);
+                    };
+
+                    document.addEventListener('mousemove', onMouseMove);
+                    document.addEventListener('mouseup', onMouseUp);
+                });
             });
         },
 
@@ -228,7 +284,7 @@ function wallPostForm() {
 <style>
 /* Trix editor styling */
 trix-editor {
-    min-height: 120px;
+    min-height: 200px;
     border: none !important;
     padding: 0.5rem 0.75rem;
     outline: none;
@@ -263,12 +319,31 @@ trix-toolbar .trix-button.trix-active {
 trix-toolbar .trix-button-group + .trix-button-group {
     margin-left: 0.5rem;
 }
-/* Hide heading button (not needed for wall posts) */
-trix-toolbar .trix-button-group--block-tools .trix-button[data-trix-attribute="heading1"] {
-    display: none;
+
+/* Image resize handle */
+figure[data-trix-attachment] {
+    position: relative;
+    display: inline-block;
+}
+figure[data-trix-attachment]:hover .image-resize-handle {
+    opacity: 1;
+}
+.image-resize-handle {
+    position: absolute;
+    right: -4px;
+    bottom: -4px;
+    width: 16px;
+    height: 16px;
+    background: var(--color-primary);
+    border: 2px solid var(--color-surface);
+    border-radius: 2px;
+    cursor: se-resize;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 10;
 }
 
-/* Rendered Trix content */
+/* Rendered content */
 .trix-render {
     line-height: 1.6;
 }
@@ -299,7 +374,7 @@ trix-toolbar .trix-button-group--block-tools .trix-button[data-trix-attribute="h
     margin: 0.5rem 0;
 }
 .trix-render pre {
-    background: var(--color-gray-light);
+    background: var(--color-bg);
     padding: 0.5rem 0.75rem;
     border-radius: 6px;
     font-family: monospace;

@@ -29,12 +29,25 @@ class TeamPostController extends Controller
             ->get();
 
         $userId = Auth::id();
-        $clubId = session('current_club_id');
 
         $isDirectMember = TeamMembership::where('team_id', $team->id)
             ->where('user_id', $userId)
             ->where('status', 'active')
             ->exists();
+
+        // Parents of children in this team can also view and comment
+        $isGuardianOfMember = false;
+        if (!$isDirectMember) {
+            $childIds = Auth::user()->getChildrenIdsInClub($clubId);
+            if ($childIds->isNotEmpty()) {
+                $isGuardianOfMember = TeamMembership::where('team_id', $team->id)
+                    ->whereIn('user_id', $childIds)
+                    ->where('status', 'active')
+                    ->exists();
+            }
+        }
+
+        $canInteract = $isDirectMember || $isGuardianOfMember;
 
         // Can post: club admin, head_coach, or assistant_coach on this team
         $isClubAdmin = ClubMembership::where('club_id', $clubId)
@@ -51,7 +64,38 @@ class TeamPostController extends Controller
 
         $canPost = $isClubAdmin || $isCoachOnTeam;
 
-        return view('teams.wall', compact('team', 'posts', 'isDirectMember', 'canPost'));
+        return view('teams.wall', compact('team', 'posts', 'canInteract', 'canPost'));
+    }
+
+    public function show(TeamPost $teamPost)
+    {
+        $team = $teamPost->team;
+        $clubId = session('current_club_id');
+        abort_unless($team->club_id === $clubId, 404);
+
+        $teamPost->load(['user', 'teamPostComments.user', 'pollOptions.pollVotes', 'attachments']);
+
+        $userId = Auth::id();
+
+        $isDirectMember = TeamMembership::where('team_id', $team->id)
+            ->where('user_id', $userId)
+            ->where('status', 'active')
+            ->exists();
+
+        $isGuardianOfMember = false;
+        if (!$isDirectMember) {
+            $childIds = Auth::user()->getChildrenIdsInClub($clubId);
+            if ($childIds->isNotEmpty()) {
+                $isGuardianOfMember = TeamMembership::where('team_id', $team->id)
+                    ->whereIn('user_id', $childIds)
+                    ->where('status', 'active')
+                    ->exists();
+            }
+        }
+
+        $canInteract = $isDirectMember || $isGuardianOfMember;
+
+        return view('teams.wall-post', compact('team', 'teamPost', 'canInteract'));
     }
 
     public function store(Request $request, Team $team)
@@ -62,6 +106,7 @@ class TeamPostController extends Controller
         $this->authorizeCoachOrAdmin($team);
 
         $validated = $request->validate([
+            'title' => 'required|string|max:255',
             'body' => 'required|string|max:50000',
             'post_type' => 'required|in:message,poll',
             'poll_options' => 'required_if:post_type,poll|array|min:2|max:10',
@@ -70,15 +115,16 @@ class TeamPostController extends Controller
             'attachment_ids.*' => 'uuid',
         ]);
 
-        // Sanitize HTML body — allow only Trix-generated tags
+        // Sanitize HTML body — allow only editor-generated tags + style for image resizing
         $body = strip_tags($validated['body'], [
-            'div', 'br', 'strong', 'em', 'del', 'a', 'ul', 'ol', 'li',
-            'blockquote', 'pre', 'h1', 'figure', 'figcaption', 'img',
+            'div', 'p', 'br', 'strong', 'em', 'del', 'a', 'ul', 'ol', 'li',
+            'blockquote', 'pre', 'h1', 'figure', 'figcaption', 'img', 'span',
         ]);
 
         $post = TeamPost::create([
             'team_id' => $team->id,
             'user_id' => Auth::id(),
+            'title' => $validated['title'],
             'body' => $body,
             'post_type' => $validated['post_type'],
         ]);
@@ -252,12 +298,32 @@ class TeamPostController extends Controller
 
     private function authorizeTeamMember(Team $team): void
     {
-        $exists = TeamMembership::where('team_id', $team->id)
-            ->where('user_id', Auth::id())
+        $userId = Auth::id();
+
+        $isDirectMember = TeamMembership::where('team_id', $team->id)
+            ->where('user_id', $userId)
             ->where('status', 'active')
             ->exists();
 
-        abort_unless($exists, 403);
+        if ($isDirectMember) {
+            return;
+        }
+
+        // Allow parents of children in this team
+        $clubId = session('current_club_id');
+        $childIds = Auth::user()->getChildrenIdsInClub($clubId);
+        if ($childIds->isNotEmpty()) {
+            $isGuardian = TeamMembership::where('team_id', $team->id)
+                ->whereIn('user_id', $childIds)
+                ->where('status', 'active')
+                ->exists();
+
+            if ($isGuardian) {
+                return;
+            }
+        }
+
+        abort(403);
     }
 
     private function authorizeCoachOrAdmin(Team $team): void

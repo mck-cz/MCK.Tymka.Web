@@ -1,8 +1,10 @@
-# Tymko — Product Requirements Document
+# Tymka — Product Requirements Document
 
 **Platforma pro správu sportovních týmů a kroužků**
-MVP Specification — verze 1.1 — 18. března 2026
+MVP Specification — verze 2.0 — 18. března 2026
 Michal
+
+> **Changelog v2.0:** Sloučení gap analýzy do PRD. Nové sekce a tabulky označené `<!-- [NEW v2.0] -->`, změněné označené `<!-- [UPDATED v2.0] -->`. Hledejte `v2.0` pro nalezení všech změn.
 
 ---
 
@@ -10,11 +12,11 @@ Michal
 
 ### 1.1 Účel dokumentu
 
-Tento Product Requirements Document (PRD) definuje funkční a technické požadavky pro MVP platformy Tymko — moderní řešení pro správu sportovních týmů a kroužků. Dokument slouží jako hlavní referenční bod pro vývoj, design a testování produktu.
+Tento Product Requirements Document (PRD) definuje funkční a technické požadavky pro MVP platformy Tymka — moderní řešení pro správu sportovních týmů a kroužků. Dokument slouží jako hlavní referenční bod pro vývoj, design a testování produktu.
 
 ### 1.2 Kontext projektu
 
-Tymko vzniká jako odpověď na identifikované mezery v existujících řešeních na českém trhu (EOS, Týmuj, Spond). Klíčovým diferenciátorem je cross-sport rodičovský dashboard, smart nominace s deadlines a moderní mobile-first UX. Detailní competitive analysis je v samostatném dokumentu.
+Tymka vzniká jako odpověď na identifikované mezery v existujících řešeních na českém trhu (EOS, Týmuj, Spond). Klíčovým diferenciátorem je cross-sport rodičovský dashboard, smart nominace s deadlines a moderní mobile-first UX. Detailní competitive analysis je v samostatném dokumentu.
 
 ### 1.3 Cílový trh
 
@@ -35,9 +37,9 @@ Primárně Česká republika a Slovensko. Mládežnické sportovní oddíly (fot
 
 ### 2.1 Positioning statement
 
-Pro rodiče sportujících dětí, trenéry mládežnických týmů a organizátory rekreačního sportu v ČR/SK, kteří potřebují přehledně řídit tréninky, zápasy, nominace, příspěvky a pronájmy. Na rozdíl od EOS (komplexní, ale těžkopádný a drahý), Týmuj (jednoduchý, ale omezený) a WhatsApp (chaos), Tymko nabízí moderní, sportově specifickou platformu s jedinečným rodičovským dashboardem napříč všemi sporty dětí — a zároveň řeší i potřeby dospělých rekreačních skupin.
+Pro rodiče sportujících dětí, trenéry mládežnických týmů a organizátory rekreačního sportu v ČR/SK, kteří potřebují přehledně řídit tréninky, zápasy, nominace, příspěvky a pronájmy. Na rozdíl od EOS (komplexní, ale těžkopádný a drahý), Týmuj (jednoduchý, ale omezený) a WhatsApp (chaos), Tymka nabízí moderní, sportově specifickou platformu s jedinečným rodičovským dashboardem napříč všemi sporty dětí — a zároveň řeší i potřeby dospělých rekreačních skupin.
 
-### 2.2 Klíčové diferenciátory Tymko
+### 2.2 Klíčové diferenciátory Tymka
 
 - **Cross-sport rodičovský dashboard:** Jeden login, všechny sporty všech dětí. Filtrovaný kalendář s barevným odlišením klubů/týmů. Personalizované iCal feedy sdílitelné s partnerem.
 - **Smart nominace s deadlines:** Trenér nominuje → hráči potvrzují → připomínkový řetězec 48h/12h → auto-posun náhradníků → finální sestava. Žádný WhatsApp chaos.
@@ -83,7 +85,7 @@ Důvod volby single DB: potřeba cross-tenant queries pro rodičovský dashboard
 
 ### 3.4 Lokalizace (i18n)
 
-Tymko je od prvního dne budováno jako dvojjazyčná aplikace s architekturou připravenou na další jazyky.
+Tymka je od prvního dne budováno jako dvojjazyčná aplikace s architekturou připravenou na další jazyky.
 
 - **Primární jazyk:** čeština (cs)
 - **Sekundární jazyk:** angličtina (en)
@@ -128,11 +130,15 @@ Tymko je od prvního dne budováno jako dvojjazyčná aplikace s architekturou p
 
 ## 4. Datový model
 
-Celkem 47 tabulek pro MVP-core, 4 tabulky pro MVP-extended (galerie, výsledky zápasů).
+<!-- [UPDATED v2.0] Počet tabulek: 47 → 56 MVP-core (+9 nových tabulek z gap analýzy) -->
+
+Celkem 56 tabulek pro MVP-core, 4 tabulky pro MVP-extended (galerie, výsledky zápasů).
 
 ### 4.1 Globální entity (bez club_id)
 
 #### `users`
+
+<!-- [UPDATED v2.0] Přidána pole: status, claimed_by, claimed_at, created_by_role, sex -->
 
 | Column | Type | Notes |
 |--------|------|-------|
@@ -146,8 +152,13 @@ Celkem 47 tabulek pro MVP-core, 4 tabulky pro MVP-extended (galerie, výsledky z
 | avatar_path | string nullable | Profilová fotka, viditelná jen se souhlasem GDPR |
 | address | string nullable | Dobrovolné |
 | birth_date | date nullable | |
+| sex | enum nullable | male / female |
 | is_minor | boolean | Automaticky z birth_date |
 | can_self_manage | boolean | false dokud nemá email+heslo; rodič spravuje |
+| status | enum | placeholder / invited / active / suspended — viz Placeholder systém |
+| claimed_by | uuid FK nullable → users | Rodič který si dítě "přivlastnil" |
+| claimed_at | timestamp nullable | |
+| created_by_role | enum nullable | coach / admin / self / guardian — kdo záznam vytvořil |
 | locale | enum | cs / sk / en |
 | notification_preferences | json nullable | Per-tým nastavení push/email/nic, tichý režim |
 | created_at | timestamp | |
@@ -249,26 +260,35 @@ Celkem 47 tabulek pro MVP-core, 4 tabulky pro MVP-extended (galerie, výsledky z
 
 #### `join_requests`
 
+<!-- [UPDATED v2.0] Rozšířeno pro online registraci: child_id, decline_reason, auto_matched_placeholder, reviewed_at -->
+
 | Column | Type | Notes |
 |--------|------|-------|
 | id | uuid PK | |
-| user_id | uuid FK | Žadatel |
+| user_id | uuid FK | Žadatel (rodič nebo dospělý) |
+| child_id | uuid FK nullable → users | Pokud žádá za dítě |
 | club_id | uuid FK | |
-| team_id | uuid FK nullable | |
-| requested_role | enum | |
+| team_id | uuid FK nullable | Preferovaný tým (volitelné) |
+| requested_role | enum | member / athlete |
 | message | text nullable | Zpráva pro správce |
-| status | enum | pending / approved / rejected |
+| status | enum | pending / approved / declined / withdrawn |
 | reviewed_by | uuid FK nullable | |
+| reviewed_at | timestamp nullable | |
+| decline_reason | text nullable | Důvod zamítnutí (viditelný žadateli) |
+| auto_matched_placeholder | uuid FK nullable → users | Pokud systém našel placeholder match |
 | created_at | timestamp | |
 
 ### 4.3 Týmy a sezóny
 
 #### `teams`
 
+<!-- [UPDATED v2.0] Přidáno: department_id (nullable, příprava pro Phase 2 org. celky) -->
+
 | Column | Type | Notes |
 |--------|------|-------|
 | id | uuid PK | |
 | club_id | uuid FK | |
+| department_id | uuid FK nullable | Org. celek — null v MVP, pro Phase 2 multi-sport |
 | season_id | uuid FK nullable | |
 | name | string | U7 přípravka, Plavci 2018... |
 | sport | enum | football / swimming / athletics / floorball / basketball / volleyball / futsal / water_polo / tennis / other |
@@ -279,6 +299,8 @@ Celkem 47 tabulek pro MVP-core, 4 tabulky pro MVP-extended (galerie, výsledky z
 
 #### `team_memberships`
 
+<!-- [UPDATED v2.0] Přidána pole: jersey_number, federation_*, license_*, attendance_required -->
+
 | Column | Type | Notes |
 |--------|------|-------|
 | id | uuid PK | |
@@ -287,6 +309,16 @@ Celkem 47 tabulek pro MVP-core, 4 tabulky pro MVP-extended (galerie, výsledky z
 | role | enum | head_coach / assistant_coach / athlete |
 | status | enum | active / invited / pending |
 | position | string nullable | Brankář, útočník — sportově specifické |
+| jersey_number | integer nullable | Číslo dresu (per tým — různé v různých týmech) |
+| federation_id | string nullable | ID u federace (FAČR číslo, ČSP reg. číslo) |
+| federation_status | enum nullable | amateur / professional / recreational / youth |
+| federation_registered_at | date nullable | Datum registrace u federace |
+| federation_membership_valid_until | date nullable | Platnost členství — auto-upozornění 30 dní předem |
+| federation_link_type | enum nullable | facr / cfbu / csp / cus / custom |
+| federation_external_url | string nullable | Odkaz na profil v externím systému |
+| license_type | string nullable | Typ licence (A / B / C / trenérská) |
+| license_valid_until | date nullable | Platnost licence |
+| attendance_required | boolean | default true. Pokud false, události se nezobrazují automaticky |
 | joined_at | timestamp | |
 
 > Jeden user může mít N záznamů v `team_memberships` s různými rolemi i v rámci jednoho klubu. Head coach může přiřazovat role v rámci svého týmu. Sport je na úrovni týmu, ne klubu.
@@ -839,7 +871,182 @@ Funkce primárně pro rekreační skupiny dospělých, ale použitelná i pro od
 | sent_at | timestamp nullable | |
 | created_at | timestamp | |
 
-### 4.13 MVP-extended tabulky (měsíc po launchi)
+### 4.13 Placeholder systém a claim requesty
+
+<!-- [NEW v2.0] Celá sekce -->
+
+#### `member_claim_requests`
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| placeholder_id | uuid FK → users | Placeholder člen (dítě) |
+| club_id | uuid FK → clubs | V jakém klubu vytvořen |
+| team_id | uuid FK nullable → teams | |
+| requested_by | uuid FK → users | Trenér/admin |
+| target_email | string nullable | Email kam se posílá pozvánka |
+| target_phone | string nullable | Telefon (fallback) |
+| token | string unique | Kryptograficky bezpečný, v URL |
+| link_type | enum | guardian_invite / self_invite / claim_existing |
+| matched_user_id | uuid FK nullable → users | Pokud systém našel shodu |
+| status | enum | pending / accepted / declined / expired |
+| expires_at | timestamp | Default 30 dní |
+| accepted_at | timestamp nullable | |
+| accepted_by | uuid FK nullable → users | |
+| created_at | timestamp | |
+
+> **Placeholder member flow:** Trenér přidá dítě s min. údaji (jméno + datum narození) → systém vytvoří `users` se `status=placeholder` → cross-club matching najde existující členy → rodič potvrdí přes signed URL → placeholder → active. Detailní flow viz gap analýza #0.
+
+### 4.14 Custom fields
+
+<!-- [NEW v2.0] Celá sekce -->
+
+#### `custom_field_definitions`
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| club_id | uuid FK | |
+| entity_type | enum | member / event / team — MVP: jen member |
+| name | string | Interní název ("Preferovaná noha") |
+| display_name | string nullable | Zobrazovaný název (pokud jiný) |
+| field_type | enum | text / textarea / number_int / number_decimal / checkbox / select / multi_select / date |
+| options | json nullable | Pro select/multi_select: ["Levá", "Pravá", "Obě"] |
+| default_value | string nullable | |
+| placeholder | string nullable | |
+| help_text | string nullable | Nápověda pod polem |
+| suffix | string nullable | Přípona: "kg", "cm", "min" |
+| is_required | boolean | default false |
+| validation_min | decimal nullable | |
+| validation_max | decimal nullable | |
+| validation_regex | string nullable | Pro text |
+| visibility_read | enum | everyone / coaches / admins |
+| visibility_write | enum | member / coaches / admins |
+| show_in_registration | boolean | default false |
+| show_in_roster | boolean | default false — max 3-4 sloupce |
+| sort_order | integer | |
+| is_active | boolean | default true |
+| created_by | uuid FK | |
+
+#### `custom_field_values`
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| definition_id | uuid FK → custom_field_definitions | |
+| entity_id | uuid | ID člena (nebo události/týmu v budoucnu) |
+| value | text | Serializovaná hodnota — pro multi_select JSON array |
+| updated_by | uuid FK | |
+| updated_at | timestamp | |
+
+> **Sport-specific seedy:** Při vytvoření klubu se automaticky naseedují typická custom fields per sport (fotbal: preferovaná noha, pozice; plavání: disciplíny; obecné: zdravotní pojišťovna, alergie, krevní skupina).
+
+### 4.15 Zdravotní prohlídky
+
+<!-- [NEW v2.0] Celá sekce -->
+
+#### `medical_checkups`
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| user_id | uuid FK → users | |
+| club_id | uuid FK → clubs | |
+| checkup_type | enum | sports_general / sports_performance / entry / custom |
+| provider_name | string nullable | Jméno lékaře / kliniky |
+| issued_at | date | Datum vydání |
+| valid_until | date | Platnost do (typicky 1 rok) |
+| file_path | string nullable | Sken/foto (S3/local) |
+| status | enum | valid / expiring_soon / expired / missing |
+| notes | text nullable | |
+| uploaded_by | uuid FK | |
+| verified_by | uuid FK nullable | Admin který ověřil |
+| verified_at | timestamp nullable | |
+| created_at | timestamp | |
+
+> **Auto-stavy:** Cron denně: valid_until > today+30d → valid ✅; ≤30d → expiring_soon ⚠️ (notifikace); ≤0 → expired ❌. Připomínky: 60/30/7 dní před expirací.
+
+### 4.16 Superadmin a založení klubu
+
+<!-- [NEW v2.0] Celá sekce -->
+
+#### `platform_admins`
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| user_id | uuid FK → users | |
+| role | enum | superadmin / support / readonly |
+| created_by | uuid FK nullable | |
+| created_at | timestamp | |
+
+#### `club_creation_requests`
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| requested_by | uuid FK → users | |
+| club_name | string | |
+| sport | enum | Primární sport |
+| city | string | |
+| description | text nullable | |
+| estimated_members | integer nullable | |
+| ico | string nullable | IČO pro ARES ověření |
+| status | enum | pending / approved / declined / withdrawn |
+| reviewed_by | uuid FK nullable | |
+| reviewed_at | timestamp nullable | |
+| decline_reason | text nullable | |
+| club_id | uuid FK nullable → clubs | Vytvořený klub po schválení |
+| created_at | timestamp | |
+
+#### `impersonation_log`
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| admin_id | uuid FK → platform_admins | |
+| club_id | uuid FK → clubs | |
+| started_at | timestamp | |
+| ended_at | timestamp nullable | |
+| reason | string nullable | |
+
+### 4.17 Import členů
+
+<!-- [NEW v2.0] Celá sekce -->
+
+#### `member_imports`
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| club_id | uuid FK | |
+| uploaded_by | uuid FK → users | |
+| file_path | string | Originální soubor |
+| total_rows | integer | |
+| imported_count | integer | |
+| skipped_count | integer | |
+| error_count | integer | |
+| column_mapping | json | {"datum_narození": "birth_date", ...} |
+| default_team_id | uuid FK nullable | |
+| status | enum | uploaded / validated / importing / completed / failed |
+| error_log | json nullable | |
+| created_at | timestamp | |
+| completed_at | timestamp nullable | |
+
+#### `member_import_rows`
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| import_id | uuid FK → member_imports | |
+| row_number | integer | |
+| raw_data | json | |
+| status | enum | pending / imported / skipped / error |
+| user_id | uuid FK nullable → users | Vytvořený/spárovaný člen |
+| error_message | string nullable | |
+| match_type | enum nullable | new / placeholder_match / duplicate_skip |
+
+### 4.18 MVP-extended tabulky (měsíc po launchi)
 
 #### `albums`
 
@@ -901,6 +1108,8 @@ Pro MVP jsou role fixní s přednastavenými právy. Granulární permission sys
 
 ### 5.3 Permission matice
 
+<!-- [UPDATED v2.0] Rozšířeno o: placeholder management, custom fields, zdravotní prohlídky, import členů, join requests, superadmin -->
+
 | Akce | Owner | Admin | Head coach | Asst. coach | Rodič |
 |------|-------|-------|------------|-------------|-------|
 | Upravit klub | ✓ | ✓ | — | — | — |
@@ -910,6 +1119,10 @@ Pro MVP jsou role fixní s přednastavenými právy. Granulární permission sys
 | Vytvořit/smazat tým | ✓ | ✓ | — | — | — |
 | Přidat/odebrat členy týmu | ✓ | ✓ | ✓ (svůj tým) | — | — |
 | Přiřadit role v týmu | ✓ | ✓ | ✓ (svůj tým) | — | — |
+| Přidat placeholder (dítě) | ✓ | ✓ | ✓ (svůj tým) | — | — |
+| Generovat QR pozvánku | ✓ | ✓ | ✓ (svůj tým) | — | — |
+| Hromadný import členů | ✓ | ✓ | — | — | — |
+| Schválit/zamítnout join request | ✓ | ✓ | ✓ (svůj tým) | — | — |
 | Vytvořit trénink | ✓ | ✓ | ✓ (svůj tým) | ⚙ konf. | — |
 | Vytvořit zápas/soutěž | ✓ | ✓ | ✓ (svůj tým) | — | — |
 | Nominovat na zápas | ✓ | ✓ | ✓ (svůj tým) | — | — |
@@ -917,10 +1130,36 @@ Pro MVP jsou role fixní s přednastavenými právy. Granulární permission sys
 | Potvrdit/odmítnout nominaci | — | — | — | — | ✓ (své dítě) |
 | Zobrazit docházku týmu | ✓ | ✓ | ✓ (svůj tým) | ✓ (svůj tým) | — |
 | Potvrzení účasti (RSVP) | ✓ | ✓ | ✓ | ✓ | ✓ (své dítě) |
+| Nahrát zdravotní prohlídku | ✓ | ✓ | ✓ (svůj tým) | — | ✓ (své dítě) |
+| Ověřit zdravotní prohlídku | ✓ | ✓ | — | — | — |
+| Vidět zdravotní stav soupisky | ✓ | ✓ | ✓ (svůj tým) | — | — |
+| Editovat custom fields (člen) | ✓ | ✓ | ✓ (svůj tým, dle visibility_write) | — | ✓ (své dítě, dle visibility_write) |
+| Spravovat custom field definice | ✓ | ✓ | — | — | — |
+| Editovat federation/licence data | ✓ | ✓ | ✓ (svůj tým) | — | — |
+| Editovat číslo dresu | ✓ | ✓ | ✓ (svůj tým) | — | — |
 | Psát na týmovou zeď | ✓ | ✓ | ✓ (svůj tým) | ✓ (svůj tým) | ✓ (své týmy) |
 | Psát na klubovou zeď | ✓ | ✓ | — | — | — |
+| Spravovat platby | ✓ | ✓ | — | — | — |
+| Vidět platby za své dítě | — | — | — | — | ✓ |
+| Export docházky | ✓ | ✓ | ✓ (svůj tým) | — | — |
 
 > ⚙ konf. = konfigurovatelné per klub v `clubs.settings`
+
+### 5.4 Superadmin role (platformové)
+
+<!-- [NEW v2.0] -->
+
+| Akce | Superadmin | Support | Readonly |
+|------|-----------|---------|----------|
+| Schválit/zamítnout nový klub | ✓ | — | — |
+| Impersonace (vstup do klubu) | ✓ | ✓ | — |
+| Editovat údaje klubu | ✓ | — | — |
+| Suspendovat/obnovit klub | ✓ | — | — |
+| Zobrazit metriky platformy | ✓ | ✓ | ✓ |
+| Cross-club vyhledávání uživatelů | ✓ | ✓ | ✓ |
+| Spravovat platform_admins | ✓ | — | — |
+
+> Impersonace vždy logována do `impersonation_log`. Při impersonaci červený pruh v navigaci: "👁 Prohlížíte jako [klub] — [Ukončit]"
 
 ---
 
@@ -928,29 +1167,68 @@ Pro MVP jsou role fixní s přednastavenými právy. Granulární permission sys
 
 ### 6.1 Registrace a onboarding
 
-#### Flow 1: Self-registrace rodiče
+<!-- [UPDATED v2.0] Přidány Flow 4 (Placeholder), Flow 5 (Online registrace + vyhledávání), Flow 6 (Import), Flow 7 (Založení klubu) -->
 
-1. Rodič otevře tymko.cz, klikne Registrace
+#### Flow 1: Self-registrace rodiče + vyhledávání klubu
+
+1. Rodič otevře tymka.cz, klikne Registrace
 2. Vyplní jméno, email (nebo zvolí magic link)
-3. Přidá děti — jméno, příjmení, datum narození
-4. Vyhledá klub (autocomplete podle názvu/města)
-5. Odešle žádost o přiřazení (`join_request`) s volbou týmu a role
-6. Admin/head coach schválí → rodič + dítě jsou v týmu
-7. Rodič vidí Tymko dashboard s kalendářem
+3. **Onboarding wizard** (jen při prvním přihlášení): "Jste rodič, trenér nebo hráč?"
+4. Rodič zvolí "Hledám klub pro dítě" → přidá dítě (jméno, příjmení, datum narození)
+5. Vyhledá klub (fulltext: název, město, sport) → veřejný profil klubu
+6. Klikne "Přihlásit dítě" → vybere tým (volitelné) → přidá zprávu
+7. `join_requests` se vytvoří → admin dostane notifikaci
+8. Admin schválí (s automatickým placeholder matchingem) → rodič + dítě v týmu
+9. Žádost viditelná na profilu rodiče: ✅ Schváleno / ⏳ Čeká / ❌ Zamítnuto s důvodem
 
 #### Flow 2: Pozvánka z klubu
 
 1. Admin/head coach zadá email nového člena a roli
-2. Tymko odešle email s invite linkem (token)
+2. Tymka odešle email s invite linkem (token)
 3. Nový uživatel klikne → dokončí registraci
 4. Automaticky přiřazen do týmu se správnou rolí
 
 #### Flow 3: QR kód na tréninku
 
-1. Trenér v Tymko otevře tým → Přidat členy → zobrazí QR kód
+1. Trenér v Tymka otevře tým → Přidat členy → zobrazí QR kód
 2. Rodič naskenuje QR kód mobilem
 3. Otevře se registrace s předvyplněným klubem a týmem
 4. Rodič dokončí registraci + přidá dítě → je v týmu
+
+#### Flow 4: Trenér přidá dítě jako placeholder
+
+1. Trenér klikne "Přidat člena" → zadá jméno + příjmení + datum narození (minimum)
+2. Systém provede cross-club matching:
+   - **Match nalezen:** "Tomáš Novák existuje v systému. [Požádat o přidání]" → notifikace rodiči → rodič potvrdí jedním klikem
+   - **Email match:** Rodič existuje → notifikace "Potvrďte, že Tomáš je vaše dítě"
+   - **Žádná shoda + email:** Placeholder + pozvánka na email rodiče
+   - **Žádná shoda, bez emailu:** Placeholder se vytvoří → trenér vygeneruje QR/odkaz → dá rodiči na dalším tréninku
+3. Placeholder má `users.status=placeholder`, je na soupisce, docházka se eviduje okamžitě
+4. Propojení s rodičem proběhne asynchronně (email / QR / rodič sám najde přes vyhledávání)
+
+#### Flow 5: Hromadné přidání / den náboru
+
+1. Trenér → tým → "Hromadné přidání" → tabulkový vstup nebo CSV
+2. Systém matching pro všechny najednou → report: ✅ 3 nalezení, 📧 5 s emailem, 🔲 7 bez kontaktu
+3. Trenér potvrdí → vytvoří se placeholdery + pozvánky
+4. Pro členy bez kontaktu: tisknutelný list s individuálními QR kódy
+
+#### Flow 6: CSV/Excel import členů
+
+1. Admin → Správa → Členové → Import → "Stáhnout šablonu" (dynamická XLSX se sloupci per klub)
+2. Vyplní Excel tabulku: jméno, příjmení, datum narození, email rodiče, tým, číslo dresu, custom fields
+3. Nahraje → systém automaticky mapuje sloupce → vizuální náhled
+4. Validace: duplicity (placeholder match / aktivní člen), chyby (chybějící datum, neexistující tým)
+5. Admin potvrdí → import na pozadí (500+ řádků = queue job)
+6. "Rozeslat pozvánky 28 rodičům s emailem?" → hromadné rozeslání
+
+#### Flow 7: Založení nového klubu
+
+1. Uživatel na dashboardu: "Založit nový klub"
+2. Formulář: název, sport, město, IČO (volitelné, ARES ověření), popis
+3. `club_creation_requests` se `status=pending` → superadmin notifikace
+4. Superadmin schválí → klub se vytvoří → žadatel = owner → sport-specific seedy (šablony, custom fields)
+5. Nebo zamítne s důvodem → žadatel vidí na profilu
 
 ### 6.2 Plánování události
 
@@ -1019,7 +1297,7 @@ Pro MVP jsou role fixní s přednastavenými právy. Granulární permission sys
 
 ### 6.3 Rodičovský dashboard
 
-Výchozí pohled po přihlášení do Tymko pro rodiče. Agregovaný přes všechny kluby a sporty všech dětí.
+Výchozí pohled po přihlášení do Tymka pro rodiče. Agregovaný přes všechny kluby a sporty všech dětí.
 
 - **Kalendářový přehled:** Timeline s barevným odlišením per klub/tým. Filtr: Vše / Tomáš / Ema / Moje tréninky U7.
 - **Čekající odpovědi:** Badge s počtem neodpovězených událostí a nominací. One-tap potvrzení.
@@ -1040,14 +1318,14 @@ Výchozí pohled pro uživatele s rolí `head_coach` nebo `assistant_coach`. Zob
 - **Rychlé akce:** Vytvořit trénink, vytvořit zápas, zahájit prezenčku — přístupné na 1 klik.
 - **Kalendářové feedy:** Trenér si vytvoří iCal feed "Moje tréninky" filtrovaný na týmy kde je coach. Synchronizace s osobním kalendářem.
 
-> Pokud je uživatel zároveň trenér i rodič (běžný scénář), Tymko zobrazí kombinovaný dashboard s přepínačem pohledu: "Jako trenér" / "Jako rodič" / "Vše". Výchozí pohled se nastaví v `user_preferences`.
+> Pokud je uživatel zároveň trenér i rodič (běžný scénář), Tymka zobrazí kombinovaný dashboard s přepínačem pohledu: "Jako trenér" / "Jako rodič" / "Vše". Výchozí pohled se nastaví v `user_preferences`.
 
 ### 6.5 Změna / zrušení události
 
 #### Změna detailů
 
 1. Trenér/admin upraví událost
-2. Tymko zaloguje změnu do `event_changes_log`
+2. Tymka zaloguje změnu do `event_changes_log`
 3. Všichni s RSVP dostanou push + email se změnami
 4. Systém se zeptá: "Potvrzujete účast i na nový termín?"
 
@@ -1060,7 +1338,7 @@ Výchozí pohled pro uživatele s rolí `head_coach` nebo `assistant_coach`. Zob
 
 ### 6.6 Prezenčka na tréninku
 
-1. Trenér na místě otevře událost v Tymko → Zahájit prezenčku
+1. Trenér na místě otevře událost v Tymka → Zahájit prezenčku
 2. Vidí seznam hráčů — potvrzení nahoře, omluvení dole, neodpovězení uprostřed
 3. Tapem označí přítomné
 4. Neoznačení + rsvp confirmed = neomluvená absence
@@ -1069,17 +1347,178 @@ Výchozí pohled pro uživatele s rolí `head_coach` nebo `assistant_coach`. Zob
 
 ---
 
-## 7. Notifikační systém
+## 7. UX/UI systém a navigace
 
-### 7.1 Kanály
+<!-- [NEW v2.0] Celá sekce — dvouvrstvá navigace, breadcrumbs, club switcher, permission-aware UI, globální UX principy -->
+
+### 7.1 Dvouvrstvá navigace
+
+**Vrstva 1 — Globální (vždy viditelná):**
+
+```
+[🏠 Dashboard] | [📅 Kalendář] | [👤 Profil]    [🔔 3]  Petr ▼
+```
+
+Dashboard, kalendář a profil jsou agregované přes všechny kluby. Žádný klubový kontext. Zvoneček = čekající akce (badge s počtem).
+
+**Vrstva 2 — Klubový kontext (zobrazí se po vstupu do klubu):**
+
+```
+FK Zlín ▼  │ Přehled | Členové | Týmy | Události | Platby | Nastavení
+```
+
+Zobrazí se JEN pokud má uživatel admin/trenér roli v alespoň jednom klubu.
+
+### 7.2 Club switcher — kompletní pravidla
+
+| Situace | Klubový řádek | Club switcher dropdown |
+|---------|--------------|------------------------|
+| Čistý rodič (žádná admin/trenér role) | ❌ nikdy | ❌ |
+| Admin/trenér v 1 klubu | ✅ auto-select, pevný název | ❌ nepotřebuje |
+| Admin/trenér ve 2+ klubech | ✅ poslední navštívený | ✅ dropdown |
+
+**Pravidlo:** V club switcheru se zobrazují POUZE kluby kde má uživatel admin/trenér roli. Rodičovské kluby se v switcheru nezobrazují — rodič do nich vstupuje přes kartu dítěte na dashboardu.
+
+**Auto-select logika:**
+- 0 admin/trenér klubů → žádný klubový řádek
+- 1 klub → pevný název, žádný dropdown
+- 2+ klubů → dropdown, default = MRU (most recently used)
+
+### 7.3 Breadcrumbs (drobečková navigace)
+
+Na **každé stránce** mimo dashboard. Pravidla:
+
+```
+🏠 > FK Zlín > Události > Trénink 18.3.2026
+🏠 > FK Zlín > U9 Přípravka > Docházka > Březen 2026
+🏠 > FK Zlín > Členové > Tomáš Novák > Zdravotní prohlídky
+🏠 > Profil > Moje děti > Tomáš > FK Zlín
+```
+
+1. 🏠 vždy odkazuje na globální dashboard
+2. Každá úroveň je klikatelná kromě poslední (tučná, aktuální stránka)
+3. Maximální hloubka: 5 úrovní, prostřední se zkrátí na "..."
+4. Generuje se automaticky z URL struktury
+5. Mobilní verze: "← FK Zlín / U9" (šipka zpět + parent kontext)
+
+### 7.4 URL struktura
+
+```
+/dashboard                              — globální dashboard
+/calendar                               — globální kalendář (agregovaný)
+/profile                                — profil uživatele
+/club/{slug}/overview                   — dashboard klubu
+/club/{slug}/members                    — databáze členů
+/club/{slug}/members/import             — import členů
+/club/{slug}/members/{id}               — profil člena
+/club/{slug}/members/{id}/checkups      — zdravotní prohlídky člena
+/club/{slug}/teams                      — přehled týmů
+/club/{slug}/team/{id}/roster           — soupiska
+/club/{slug}/team/{id}/attendance       — docházka
+/club/{slug}/team/{id}/events           — události týmu
+/club/{slug}/events                     — události celého klubu
+/club/{slug}/events/create              — nová událost
+/club/{slug}/payments                   — přehled plateb
+/club/{slug}/settings                   — nastavení klubu
+/club/{slug}/settings/custom-fields     — custom field definice
+/club/{slug}/join-requests              — žádosti o přijetí
+```
+
+Vždy bookmarkovatelné, back button funguje přirozeně.
+
+### 7.5 Permission-aware UI
+
+**Zlaté pravidlo:** Pokud uživatel nemůže s prvkem interagovat, prvek neexistuje v DOM. Ne disabled, ne šedý — prostě tam není.
+
+```php
+// Blade šablona
+@can('viewAny', [Member::class, $club])
+    <a href="...">Členové</a>
+@endcan
+
+// Laravel Policy (backend ochrana)
+public function update(User $user, Event $event)
+{
+    $this->authorize('update', $event);  // 403 pokud nemá právo
+}
+```
+
+Dvojitá ochrana: UI nezobrazí + backend vrátí 403.
+
+**Co vidí která role v klubovém kontextu:**
+
+| Navigační položka | Owner/Admin | Head coach | Asst. coach | Rodič (přes dítě) |
+|-------------------|-------------|------------|-------------|-------------------|
+| Přehled | ✓ | ✓ | ✓ | — |
+| Členové | ✓ | — | — | — |
+| Týmy | ✓ | svůj tým | svůj tým | — |
+| Události | ✓ | svůj tým | svůj tým | dítěte |
+| Docházka | ✓ | svůj tým | svůj tým | dítěte |
+| Platby | ✓ | — | — | za své dítě |
+| Nastavení | ✓ | — | — | — |
+| Žádosti o přijetí | ✓ | svůj tým | — | — |
+| Profil dítěte | ✓ | svůj tým | svůj tým | své dítě |
+
+### 7.6 Vstupní body do klubového kontextu
+
+| Odkud | Kam | Kontext |
+|-------|-----|---------|
+| Dashboard → kliknu na tým kde trénuji | Klubový kontext, trenérský pohled | Auto-set club_id + team_id |
+| Dashboard → kliknu na dítě | Klubový kontext, rodičovský pohled | Auto-set club_id, rodičovská nav |
+| Dashboard → [+ Trénink] u týmu | Formulář nové události | Auto-set club_id + team_id |
+| Club switcher → vyberu klub | Přehled klubu (landing) | Set club_id, clear team_id |
+| Přímá URL `/club/fk-zlin/...` | Klubový kontext z URL | Z URL parametru |
+| Push notifikace s deeplinkem | Cílová stránka | Z deeplinku |
+
+### 7.7 Globální UX principy
+
+**Max 3 kliknutí na běžnou akci:**
+
+| Akce | Kliknutí | Cesta |
+|------|---------|-------|
+| Potvrdit účast dítěte | 1 | Dashboard → [Potvrdit] |
+| Omluvit dítě | 2 | Dashboard → [Omluvit] → důvod |
+| Zahájit prezenčku | 2 | Dashboard → [Otevřít tým] → [Prezenčka] |
+| Vytvořit trénink | 2 | Dashboard → [+ Trénink] → formulář |
+| Zaplatit příspěvek | 2 | Dashboard → "Nezaplaceno" → QR kód |
+
+**Prázdné stavy — vždy s akcí:**
+
+```
+Zatím nemáte žádné členy v týmu.
+[Přidat člena] [Importovat ze souboru] [Pozvat přes QR kód]
+```
+
+**Konzistentní barvy tlačítek:**
+
+| Barva | Význam | Příklady |
+|-------|--------|----------|
+| 🟢 Zelená (primary #1B6B4A) | Hlavní pozitivní akce | Potvrdit, Schválit, Uložit |
+| 🟠 Oranžová (accent #E8793A) | Sekundární / upozornění | Omluvit, Nominovat, Dobít kredit |
+| ⚪ Šedá (outline) | Neutrální | Zrušit, Zpět, Zavřít |
+| 🔴 Červená (danger) | Destruktivní | Smazat, Zamítnout, Stornovat |
+
+Max 1 primární (zelené) tlačítko na obrazovce.
+
+**Mobile-first:**
+- Tabulky na mobilu → karty (stack layout)
+- Formuláře: plná šířka, min 44px touch targets
+- Prezenčka: velké checkboxy, swipe gesta
+- Bottom sheet místo modálních dialogů
+
+---
+
+## 8. Notifikační systém
+
+### 8.1 Kanály
 
 - **Push (FCM):** Primární kanál pro všechny běžné události.
 - **Email:** Fallback a formální komunikace. Kritické změny vždy push + email. Obsahuje signed URL pro one-click response.
 - **In-app:** Všechny notifikace v `notifications` tabulce. Badge s počtem nepřečtených.
 
-### 7.2 Preference uživatele
+### 8.2 Preference uživatele
 
-Každý uživatel si nastaví per-tým granulární preferences v Tymko nastavení:
+Každý uživatel si nastaví per-tým granulární preferences v Tymka nastavení:
 
 - Nová událost: push / email / push+email / nic
 - Změna/zrušení události: **vždy push+email** (nelze vypnout)
@@ -1089,15 +1528,15 @@ Každý uživatel si nastaví per-tým granulární preferences v Tymko nastaven
 - Týmová zeď: push / nic
 - Tichý režim: od–do (default 22:00–07:00)
 
-### 7.3 Deduplikace a spolehlivost
+### 8.3 Deduplikace a spolehlivost
 
 Multi-channel delivery pro kritické události — push + email. Idempotentní doručování (žádné duplicitní notifikace). Kritické změny (zrušení, změna času) nelze vypnout. Potvrzení doručení trackováno v `notifications.sent_at`.
 
 ---
 
-## 8. Obchodní model
+## 9. Obchodní model
 
-### 8.1 Freemium pricing
+### 9.1 Freemium pricing
 
 | | Starter (zdarma) | Pro (~299 Kč/měs.) | Club (~799 Kč/měs.) |
 |---|---|---|---|
@@ -1114,16 +1553,19 @@ Multi-channel delivery pro kritické události — push + email. Idempotentní d
 | Galerie | ✗ | ✓ | ✓ |
 | Klubový web | ✗ | ✗ | ✓ |
 
-> **Starter je zdarma a plně funkční pro rekreační party** — 1 tým, 25 členů, tréninky, docházka, vyúčtování pronájmu, pokuty. Pokrývá 100 % potřeb skupiny chlapů co si chodí zahrát florbal. Tito uživatelé jsou zároveň rodiče, kteří vidí aktivity svých dětí v dashboardu a přirozeně doporučí Tymko trenérům svých dětí.
+> **Starter je zdarma a plně funkční pro rekreační party** — 1 tým, 25 členů, tréninky, docházka, vyúčtování pronájmu, pokuty. Pokrývá 100 % potřeb skupiny chlapů co si chodí zahrát florbal. Tito uživatelé jsou zároveň rodiče, kteří vidí aktivity svých dětí v dashboardu a přirozeně doporučí Tymka trenérům svých dětí.
 >
-> Rodičovský dashboard Tymko je zdarma pro všechny rodiče bez ohledu na plán klubu. Rodič je ambasador, který přirozeně tlačí klub k adopci.
+> Rodičovský dashboard Tymka je zdarma pro všechny rodiče bez ohledu na plán klubu. Rodič je ambasador, který přirozeně tlačí klub k adopci.
 
 ---
 
-## 9. Fázování vývoje
+## 10. Fázování vývoje
 
-### 9.1 MVP-core (launch)
+### 10.1 MVP-core (launch)
 
+<!-- [UPDATED v2.0] Přidáno: placeholder systém, custom fields, zdravotní prohlídky, sportovní profil, online registrace, import členů, superadmin, UX systém, číslo dresu, CSV import zápasů -->
+
+**Jádro (v1.1):**
 - Registrace, login (email + magic link), QR onboarding
 - Dvojjazyčné UI (CZ/EN) s přepínačem, všechny stringy v lang souborech
 - Klub, týmy, sezóny, členství, role (owner/admin/member + coach/athlete)
@@ -1150,13 +1592,29 @@ Multi-channel delivery pro kritické události — push + email. Idempotentní d
 - Změna/zrušení událostí s notifikacemi a audit logem
 - Statistiky spolehlivosti
 
-### 9.2 MVP-extended (měsíc po launchi)
+**Nové v2.0 (z gap analýzy):**
+- **Placeholder member systém** — třístavový onboarding (placeholder → invited → active), cross-club matching, QR pozvánky, hromadné přidání, tisknutelný QR list
+- **Custom fields** — definovatelná pole per klub (text/number/select/date/checkbox), sport-specific seedy, visibility per role, show_in_roster/registration
+- **Číslo dresu** per tým (`team_memberships.jersey_number`)
+- **Sportovní profil hráče** — federation_id, status, datum registrace, platnost členství, licence, odkaz na externí systém
+- **Zdravotní prohlídky** — evidence platnosti, sken/foto, auto-stavy (valid/expiring_soon/expired), upozornění 60/30/7 dní, ověření adminem, dashboard widget
+- **Online registrace + vyhledávání klubu** — fulltext hledání (název/město/sport), veřejný profil klubu, žádost za sebe/dítě, schvalovací flow s automatickým placeholder matchingem
+- **Import členů** — dynamická XLSX šablona, automatické mapování sloupců, validace, duplicitní/placeholder matching, hromadné pozvánky, background processing
+- **Superadmin panel** — schvalování nových klubů, ARES ověření IČO, impersonace s audit logem, platformové metriky
+- **Architektonická příprava org. celky** — `teams.department_id` nullable FK, global scopes
+- **CSV/iCal import zápasů** — ruční import rozlosování z fotbal.cz
+- **UX systém** — dvouvrstvá navigace, club switcher, breadcrumbs na každé stránce, permission-aware UI, onboarding wizard, prázdné stavy s akcemi
+
+### 10.2 MVP-extended (měsíc po launchi)
 
 - Galerie fotek ze zápasů/tréninků (s GDPR respektem)
 - Výsledky zápasů / skóre
 - Profilové fotky hráčů
+- **Přehled dlužníků** (dashboard widget)
 
-### 9.3 Fáze 2 (3–6 měsíců po launchi)
+### 10.3 Fáze 2 (3–6 měsíců po launchi)
+
+<!-- [UPDATED v2.0] Rozšířeno o položky z gap analýzy -->
 
 - Nativní iOS + Android appky (React Native / Flutter)
 - FIO API — automatické párování plateb
@@ -1166,54 +1624,88 @@ Multi-channel delivery pro kritické události — push + email. Idempotentní d
 - Rezervace sportovišť (klubový booking systém)
 - Sdílení dopravy (strukturovaný modul)
 - Další sportové šablony
+- **Členská konta / peněženky** — virtuální účty, odměny trenérů, poplatky, dobíjení QR kódem
+- **Organizační celky + rozšířená oprávnění** — oddíly (departments), modulové role s scope per celek
+- **Náplň události + Export NSA/ČUS** — pro dotace
+- **Slevy na platby** — pravidla (sourozenecké, sociální, množstevní)
+- **Splátkový kalendář** — postupné úhrady
+- **Dokumenty + soubory členů** — sdílení, přílohy k profilu
+- **Mailing** — hromadné emaily
+- **Podskupiny týmů** — pro sub-skupiny v rámci týmu
+- **Přihlášky pro veřejnost** — kempy, tábory, open eventy + auto platby
+- **Import událostí** — iCal/CSV
+- **Štítky plateb** — kategorizace
+- **Pozice členů** — definovatelný katalog per sport
+- **Povinná/nepovinná docházka** — per člen konfigurace
+- **Realizační tým** — oddělené role + odměny
+- **Konfigurace platformy** — rozšíření clubs.settings
+- **FAČR API investigace** — reverse-engineering fotbal.cz API
 
-### 9.4 Fáze 3 (12+ měsíců)
+### 10.4 Fáze 3 (12+ měsíců)
 
-- Napojení na sportovní svazy (FAČR, ČSP, ČFbU)
+<!-- [UPDATED v2.0] Rozšířeno -->
+
+- Napojení na sportovní svazy (FAČR, ČSP, ČFbU) — oficiální partnerství
 - Klubový web jako modul
 - Dotační výstupy (NSA, městské granty — specializované šablony)
 - SK lokalizace a expanze
 - API pro třetí strany
 - SMS notifikace
+- **Platba kartou** (GoPay/Stripe)
+- **Obchod / e-shop** pro členy
+- **Pořádání / event staffing**
+- **Mapa členů**
+- **Veřejné obrazovky**
+- **Požadavky / ticketing**
 
 ---
 
-## 10. Go-to-market strategie
+## 11. Go-to-market strategie
 
-### 10.1 Fáze 1: Validace (měsíc 1–2)
+### 11.1 Fáze 1: Validace (měsíc 1–2)
 
 - Osobní onboarding 5–10 oddílů ve Zlínském kraji
 - Ideálně kluby kde máš děti — autentický feedback loop
 - Trenér jako champion — on přivede rodiče, ne naopak
-- WhatsApp koexistence — trenér pošle link na událost v Tymko do WhatsApp skupiny
+- WhatsApp koexistence — trenér pošle link na událost v Tymka do WhatsApp skupiny
 
-### 10.2 Fáze 2: Lokální trakce (měsíc 3–6)
+### 11.2 Fáze 2: Lokální trakce (měsíc 3–6)
 
 - Rozšíření do Moravy, online marketing (FB/IG ads cílené na trenéry mládeže)
 - SEO — "správa sportovního týmu", "organizace tréninků"
 - Cíl: 50 oddílů
 
-### 10.3 Fáze 3: Národní (měsíc 6–18)
+### 11.3 Fáze 3: Národní (měsíc 6–18)
 
 - Partnerství se sportovními svazy, PR v médiích
-- EOS switch program — 3 měsíce Tymko zdarma pro kluby přecházející z EOS
+- EOS switch program — 3 měsíce Tymka zdarma pro kluby přecházející z EOS
 - Cíl: 500 oddílů
 
 ---
 
-## 11. Další kroky
+## 12. Další kroky
 
-1. **Registrace domén** — tymko.cz + tymko.online, sociální sítě
-2. **Wireframy klíčových obrazovek** — Rodičovský dashboard, detail události, nominace, prezenčka
-3. **Setup projektu** — Laravel 12 projekt, DB migrace, seedery pro šablony
-4. **Implementace jádra** — Users, clubs, teams, memberships, events, attendances
-5. **Nominační engine** — Deadlines, připomínky, auto-posun náhradníků
-6. **Notifikační systém** — FCM + email + in-app s preferences
-7. **Rodičovský dashboard** — Agregovaný kalendář, filtry, iCal feedy
-8. **Platby + GDPR** — QR kódy, PDF potvrzení, souhlasy
-9. **Alfa testování** — 2–3 oddíly ze Zlínského kraje, iterace
-10. **Beta launch** — Otevřený přístup, marketing
+<!-- [UPDATED v2.0] Rozšířeno o gap analýza deliverables -->
+
+1. **Registrace domén** — tymka.cz + tymka.online, sociální sítě
+2. **Trademark check** — EUIPO/ÚPV pro "Tymka"
+3. **Wireframy klíčových obrazovek** — Dashboard (rodič/trenér/admin), detail události, nominace, prezenčka, profil člena (záložky), online registrace wizard, import členů flow
+4. **Setup projektu** — Laravel 12 projekt, DB migrace (56 tabulek MVP-core), seedery pro šablony a sport-specific custom fields
+5. **Implementace jádra** — Users (s placeholder stavy), clubs, teams, memberships, events, attendances
+6. **Placeholder member systém** — Cross-club matching, claim requesty, QR pozvánky
+7. **Custom fields engine** — Definice, validace, sport seedy, visibility per role
+8. **UX systém** — Dvouvrstvá navigace, club switcher, breadcrumbs, permission-aware UI
+9. **Online registrace** — Vyhledávání klubu, veřejný profil, join requests, schvalovací flow
+10. **Import členů** — XLSX šablona, mapování, matching, hromadné pozvánky
+11. **Zdravotní prohlídky** — Upload, auto-stavy, cron upozornění
+12. **Superadmin panel** — Schvalování klubů, ARES, impersonace
+13. **Nominační engine** — Deadlines, připomínky, auto-posun náhradníků
+14. **Notifikační systém** — FCM + email + in-app s preferences
+15. **Rodičovský dashboard** — Agregovaný kalendář, filtry, iCal feedy
+16. **Platby + GDPR** — QR kódy, PDF potvrzení, souhlasy
+17. **Alfa testování** — 2–3 oddíly ze Zlínského kraje, iterace
+18. **Beta launch** — Otevřený přístup, marketing
 
 ---
 
-*Tento dokument je živý a bude průběžně aktualizován. Tymko PRD verze 1.0, březen 2026.*
+*Tento dokument je živý a bude průběžně aktualizován. Tymka PRD verze 1.0, březen 2026.*

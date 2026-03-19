@@ -55,15 +55,15 @@ class UserSeeder extends Seeder
 
         DB::table('users')->insert([
             // Club 1 owner (admin)
-            $userTemplate(SeederIds::$michal, 'Michal', 'Kašpařík', 'admin@tymko.cz'),
+            $userTemplate(SeederIds::$michal, 'Michal', 'Kašpařík', 'admin@tymka.cz'),
             // Coach 1 (head_coach U9+U12, also club admin)
-            $userTemplate(SeederIds::$jan, 'Jan', 'Novák', 'trener@tymko.test'),
+            $userTemplate(SeederIds::$jan, 'Jan', 'Novák', 'trener@tymka.test'),
             // Coach 2 (assistant in club 1, head_coach in club 2)
-            $userTemplate(SeederIds::$pavel, 'Pavel', 'Dvořák', 'trener2@tymko.test'),
+            $userTemplate(SeederIds::$pavel, 'Pavel', 'Dvořák', 'trener2@tymka.test'),
             // Parent 1 — member in BOTH clubs (cross-club scenario)
-            $userTemplate(SeederIds::$eva, 'Eva', 'Svobodová', 'rodic@tymko.test'),
+            $userTemplate(SeederIds::$eva, 'Eva', 'Svobodová', 'rodic@tymka.test'),
             // Parent 2
-            $userTemplate(SeederIds::$martin, 'Martin', 'Procházka', 'rodic2@tymko.test'),
+            $userTemplate(SeederIds::$martin, 'Martin', 'Procházka', 'rodic2@tymka.test'),
             // Child 1 (Eva's) — in both clubs
             $userTemplate(SeederIds::$tomas, 'Tomáš', 'Svoboda', null, [
                 'password' => null, 'birth_date' => '2017-05-15',
@@ -90,19 +90,19 @@ class UserSeeder extends Seeder
                 'is_minor' => true, 'email_verified_at' => null,
             ]),
             // Teenager — self-managing athlete
-            $userTemplate(SeederIds::$adam, 'Adam', 'Novotný', 'adam@tymko.test', [
+            $userTemplate(SeederIds::$adam, 'Adam', 'Novotný', 'adam@tymka.test', [
                 'birth_date' => '2010-11-03', 'is_minor' => true, 'can_self_manage' => true,
             ]),
             // Club 2 owner
-            $userTemplate(SeederIds::$lucie, 'Lucie', 'Marková', 'lucie@tymko.test'),
+            $userTemplate(SeederIds::$lucie, 'Lucie', 'Marková', 'lucie@tymka.test'),
             // Placeholder child (no guardian linked — unlinked scenario)
-            $userTemplate(SeederIds::$petra, 'Petra', 'Nová', 'placeholder_petra@tymko.placeholder', [
+            $userTemplate(SeederIds::$petra, 'Petra', 'Nová', 'placeholder_petra@tymka.placeholder', [
                 'password' => Hash::make(Str::random(64)),
                 'status' => 'placeholder', 'birth_date' => '2017-09-22',
                 'is_minor' => true, 'email_verified_at' => null,
             ]),
             // Adult athlete in club 2
-            $userTemplate(SeederIds::$david, 'David', 'Kratochvíl', 'david@tymko.test'),
+            $userTemplate(SeederIds::$david, 'David', 'Kratochvíl', 'david@tymka.test'),
         ]);
 
         // -----------------------------------------------------------------
@@ -112,8 +112,8 @@ class UserSeeder extends Seeder
         SeederIds::$jiri = Str::uuid()->toString();
 
         DB::table('users')->insert([
-            $userTemplate(SeederIds::$hana, 'Hana', 'Králová', 'hana@tymko.test'),
-            $userTemplate(SeederIds::$jiri, 'Jiří', 'Marek', 'jiri@tymko.test'),
+            $userTemplate(SeederIds::$hana, 'Hana', 'Králová', 'hana@tymka.test'),
+            $userTemplate(SeederIds::$jiri, 'Jiří', 'Marek', 'jiri@tymka.test'),
         ]);
 
         // -----------------------------------------------------------------
@@ -134,7 +134,7 @@ class UserSeeder extends Seeder
         );
         $placeholderTemplate = fn ($first, $last, $birth) => $userTemplate(
             Str::uuid()->toString(), $first, $last,
-            'placeholder_' . strtolower($first) . '@tymko.placeholder',
+            'placeholder_' . strtolower($first) . '@tymka.placeholder',
             [
                 'password' => Hash::make(Str::random(64)),
                 'status' => 'placeholder',

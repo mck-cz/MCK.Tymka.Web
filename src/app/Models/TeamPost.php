@@ -16,6 +16,7 @@ class TeamPost extends Model
     protected $fillable = [
         'team_id',
         'user_id',
+        'title',
         'body',
         'post_type',
     ];
