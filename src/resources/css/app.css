@@ -1,0 +1,186 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+@source '../../vendor/livewire/livewire/src/**/*.blade.php';
+
+@theme {
+    --font-sans: 'Inter', system-ui, sans-serif;
+
+    --color-primary: #1B6B4A;
+    --color-primary-dark: #0F4A32;
+    --color-primary-deeper: #0A3622;
+    --color-primary-light: #E8F5EE;
+
+    --color-accent: #C4612A;
+    --color-accent-dark: #A34E1F;
+    --color-accent-light: #FFF3EC;
+
+    --color-text: #1A1A18;
+    --color-text-secondary: #525250;
+
+    --color-bg: #F7F7F5;
+    --color-surface: #FFFFFF;
+    --color-border: #E8E8E3;
+
+    --color-success: #16a34a;
+    --color-success-light: #f0fdf4;
+    --color-warning: #b45309;
+    --color-warning-bg: #fffbeb;
+    --color-danger: #dc2626;
+    --color-danger-light: #fef2f2;
+    --color-gray-light: #f3f4f6;
+}
+
+@layer components {
+    .btn-primary {
+        @apply inline-flex items-center justify-center text-white rounded-lg px-4 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none;
+        background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+        box-shadow: 0 1px 3px rgba(27, 107, 74, 0.3), 0 1px 2px rgba(27, 107, 74, 0.2);
+    }
+    .btn-primary:hover {
+        background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary-deeper) 100%);
+        box-shadow: 0 4px 8px rgba(27, 107, 74, 0.35), 0 2px 4px rgba(27, 107, 74, 0.2);
+        transform: translateY(-1px);
+    }
+    .btn-primary:active {
+        transform: translateY(0);
+        box-shadow: 0 1px 2px rgba(27, 107, 74, 0.3);
+    }
+
+    .btn-secondary {
+        @apply inline-flex items-center justify-center border border-primary/30 text-primary bg-primary-light/40 rounded-lg px-4 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none;
+    }
+    .btn-secondary:hover {
+        @apply bg-primary-light border-primary/50;
+        box-shadow: 0 1px 3px rgba(27, 107, 74, 0.15);
+    }
+
+    .btn-accent {
+        @apply inline-flex items-center justify-center text-white rounded-lg px-4 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none;
+        background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%);
+        box-shadow: 0 1px 3px rgba(196, 97, 42, 0.3), 0 1px 2px rgba(196, 97, 42, 0.2);
+    }
+    .btn-accent:hover {
+        box-shadow: 0 4px 8px rgba(196, 97, 42, 0.35), 0 2px 4px rgba(196, 97, 42, 0.2);
+        transform: translateY(-1px);
+    }
+    .btn-accent:active {
+        transform: translateY(0);
+    }
+
+    .btn-ghost {
+        @apply inline-flex items-center justify-center text-primary border border-transparent rounded-lg px-4 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none;
+    }
+    .btn-ghost:hover {
+        @apply bg-primary-light/50 border-primary/20;
+    }
+
+    .btn-danger {
+        @apply inline-flex items-center justify-center bg-danger text-white rounded-lg px-4 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-danger/50 focus:ring-offset-2 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none;
+        box-shadow: 0 1px 3px rgba(220, 38, 38, 0.25);
+    }
+    .btn-danger:hover {
+        @apply bg-red-700;
+        box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
+        transform: translateY(-1px);
+    }
+    .btn-danger:active {
+        transform: translateY(0);
+    }
+
+    .form-select {
+        @apply w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors;
+    }
+
+    .form-checkbox {
+        @apply rounded border-border text-primary focus:ring-primary/50;
+    }
+
+    .form-radio {
+        @apply border-border text-primary focus:ring-primary/50;
+    }
+
+    .card {
+        @apply bg-surface rounded-xl border border-border;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+    }
+
+    .form-input {
+        @apply w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary placeholder:text-text-secondary transition-colors;
+    }
+
+    .form-label {
+        @apply block text-sm font-medium text-text mb-1;
+    }
+
+    .form-error {
+        @apply text-xs text-danger mt-1;
+    }
+
+    .badge {
+        @apply inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium;
+    }
+
+    .badge-primary {
+        @apply bg-primary-light text-primary;
+    }
+
+    .badge-accent {
+        @apply bg-accent-light text-accent;
+    }
+
+    .badge-success {
+        @apply bg-success-light text-success;
+    }
+
+    .badge-warning {
+        @apply bg-warning-bg text-warning;
+    }
+
+    .badge-danger {
+        @apply bg-danger-light text-danger;
+    }
+
+    .badge-gray {
+        @apply bg-gray-light text-text-secondary;
+    }
+
+    .badge-info {
+        @apply bg-primary-light text-primary;
+    }
+
+    .alert-error {
+        @apply rounded-lg border border-danger/30 bg-danger-light p-4 text-sm text-danger;
+    }
+
+    .alert-success {
+        @apply rounded-lg border border-success/30 bg-success-light p-4 text-sm text-success;
+    }
+
+    .card-header {
+        @apply border-b border-border px-6 py-4 font-medium text-text;
+    }
+
+    .card-body {
+        @apply p-6;
+    }
+
+    .text-muted {
+        @apply text-text-secondary;
+    }
+
+    /* Prose styling for rich text content */
+    .prose h1 { @apply text-xl font-semibold mb-3 mt-4; }
+    .prose h2 { @apply text-lg font-semibold mb-2 mt-3; }
+    .prose h3 { @apply text-base font-medium mb-2 mt-3; }
+    .prose p { @apply mb-2; }
+    .prose ul { @apply list-disc pl-6 mb-2; }
+    .prose ol { @apply list-decimal pl-6 mb-2; }
+    .prose li { @apply mb-1; }
+    .prose a { @apply text-primary underline; }
+    .prose strong { @apply font-semibold; }
+    .prose em { @apply italic; }
+}

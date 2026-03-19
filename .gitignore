@@ -1,0 +1,40 @@
+# Dependencies
+src/vendor/
+src/node_modules/
+
+# Environment
+src/.env
+src/.env.backup
+src/.env.production
+
+# Build
+src/public/build/
+src/public/hot
+src/public/storage
+
+# Laravel
+src/storage/*.key
+src/storage/framework/cache/data/*
+src/storage/framework/sessions/*
+src/storage/framework/views/*
+src/storage/logs/*
+src/bootstrap/cache/*
+
+# Database
+src/database/database.sqlite
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Testing
+src/.phpunit.result.cache
+src/.phpunit.cache/

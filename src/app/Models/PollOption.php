@@ -1,0 +1,31 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class PollOption extends Model
+{
+    use HasUuids;
+
+    public $timestamps = false;
+
+    protected $fillable = [
+        'post_id',
+        'label',
+        'sort_order',
+    ];
+
+    public function teamPost(): BelongsTo
+    {
+        return $this->belongsTo(TeamPost::class, 'post_id');
+    }
+
+    public function pollVotes(): HasMany
+    {
+        return $this->hasMany(PollVote::class, 'option_id');
+    }
+}

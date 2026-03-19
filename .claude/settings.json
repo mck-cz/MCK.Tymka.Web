@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php -v)",
+      "Bash(composer --version)",
+      "Bash(npm -v)",
+      "Bash(composer create-project:*)",
+      "Bash(touch database/database.sqlite)",
+      "Bash(php artisan:*)",
+      "Bash(composer require:*)",
+      "Bash(npm run:*)",
+      "Bash(php -l:*)",
+      "Bash(grep:*)",
+      "Bash(sed:*)",
+      "Bash(find:*)",
+      "Bash(xargs:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(bash /tmp/*.sh)",
+      "Read(//c/Development/MCK.Tymko.Web/src/**)",
+      "Bash(gh auth:*)",
+      "Bash(where gh:*)",
+      "Bash(git config:*)",
+      "Bash(git credential-manager:*)",
+      "Bash(cmdkey /list)",
+      "Bash(php -r \":*)",
+      "Bash(sqlite3 database/database.sqlite \"SELECT penalty_type FROM penalty_rules;\")",
+      "Bash(grep -n \"''consents''\" src/resources/views/layouts/app.blade.php)",
+      "Bash(php -r \"echo extension_loaded\\(''gd''\\) ? ''GD OK'' : ''GD MISSING'';\")",
+      "Bash(mv reference/Tymko-PRD-MVP.md reference/Tymko-PRD-MVP.md)",
+      "Bash(mv reference/Tymko-PRD-MVP-v2.0.md reference/Tymko-PRD-MVP-v2.0.md)",
+      "Bash(find c:DevelopmentMCK.Tymko.Websrc -type f \\\\\\(-name *.php -o -name *.js -o -name *.blade.php -o -name *.json -o -name *.env* -o -name *.md \\\\\\) ! -path */vendor/* ! -path */node_modules/* ! -path */storage/logs/*)",
+      "Bash(git remote:*)",
+      "Bash(git add:*)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\MCK\\.claude\\projects\\c--Development-MCK-Tymko-Web\\memory"
+    ]
+  }
+}

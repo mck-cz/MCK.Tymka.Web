@@ -1,0 +1,53 @@
+Tymko — testovací přihlašovací údaje
+======================================
+Heslo pro všechny: test
+
+KLUB 1: FK Zlín Mládež
+-----------------------
+admin@tymko.cz        Michal Kašpařík     owner (klub)
+trener@tymko.test     Jan Novák           admin (klub), head_coach U9 + U12
+trener2@tymko.test    Pavel Dvořák        member (klub), assistant_coach U9 — také head_coach Juniors v Klubu 2
+rodic@tymko.test      Eva Svobodová       member (klub), rodič Tomáše + Sofie + Matěje — také v Klubu 2
+rodic2@tymko.test     Martin Procházka    member (klub), rodič Emy + Jakuba
+adam@tymko.test       Adam Novotný        member (klub), athlete U12, teenager (self-managing)
+hana@tymko.test       Hana Králová        member (klub), rodič Filipa + Terezy (U9)
+jiri@tymko.test       Jiří Marek          member (klub), rodič Daniela (U12) — také v Klubu 2
+
+Děti (bez přihlášení):
+  Tomáš Svoboda        athlete U9 (+ Juniors v Klubu 2), dítě Evy
+  Sofie Svobodová      athlete U9 (jen Klub 1), dítě Evy
+  Matěj Svoboda        athlete U12 (+ Juniors v Klubu 2), dítě Evy
+  Ema Procházková      athlete U9, dítě Martina
+  Jakub Procházka      athlete U12, dítě Martina
+  Filip Král           athlete U9, dítě Hany
+  Tereza Králová       athlete U9, dítě Hany
+  Oliver Šťastný       athlete U9, placeholder (BEZ rodiče)
+  Natálie Veselá       athlete U9, placeholder (BEZ rodiče)
+  Vojtěch Kučera       athlete U9, placeholder (BEZ rodiče)
+  Anna Pokorná         athlete U9, placeholder (BEZ rodiče)
+  Daniel Marek         athlete U12, dítě Jiřího
+  Šimon Bartoš         athlete U12, placeholder (BEZ rodiče)
+  Eliška Horáková      athlete U12, placeholder (BEZ rodiče)
+  Dominik Fiala        athlete U12, placeholder (BEZ rodiče)
+  Nikola Urbanová      athlete U12, placeholder (BEZ rodiče)
+  Richard Blažek       athlete U12, placeholder (BEZ rodiče)
+
+KLUB 2: BK Olomouc
+-------------------
+lucie@tymko.test      Lucie Marková       owner (klub)
+trener2@tymko.test    Pavel Dvořák        member (klub), head_coach Juniors
+rodic@tymko.test      Eva Svobodová       member (klub), rodič Tomáše + Matěje
+david@tymko.test      David Kratochvíl    member (klub), athlete Juniors (dospělý)
+jiri@tymko.test       Jiří Marek          member (klub), rodič Samuela (cross-club)
+
+Děti (bez přihlášení):
+  Tomáš Svoboda        athlete Juniors, dítě Evy (cross-club)
+  Matěj Svoboda        athlete Juniors, dítě Evy (cross-club)
+  Petra Nová           athlete Juniors, placeholder (BEZ rodiče)
+  Samuel Marek         athlete Juniors, dítě Jiřího (cross-club)
+  Kryštof Novotný      athlete Juniors, placeholder (BEZ rodiče)
+  Štěpán Veselý        athlete Juniors, placeholder (BEZ rodiče)
+  Barbora Černá        athlete Juniors, placeholder (BEZ rodiče)
+  Ondřej Kratochvíl    athlete Juniors, placeholder (BEZ rodiče)
+
+

@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tymko — Správa sportovních týmů bez chaosu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --brand: #1B6B4A;
+  --brand-light: #E8F5EE;
+  --brand-dark: #0F4A32;
+  --accent: #E8793A;
+  --accent-light: #FFF3EC;
+  --bg: #FAFAF8;
+  --surface: #FFFFFF;
+  --text: #1A1A18;
+  --text-secondary: #6B6B65;
+  --text-tertiary: #9C9C95;
+  --border: #E8E8E3;
+  --font: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+html { scroll-behavior: smooth; }
+body { font-family: var(--font); color: var(--text); background: var(--bg); line-height: 1.7; -webkit-font-smoothing: antialiased; }
+a { color: var(--brand); text-decoration: none; }
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  text-align: center; padding: 2rem; position: relative; overflow: hidden;
+  background: linear-gradient(165deg, #F0FAF4 0%, var(--bg) 40%, #FFF8F3 100%);
+}
+.hero::before {
+  content: ''; position: absolute; top: -200px; right: -200px;
+  width: 600px; height: 600px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(27,107,74,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero::after {
+  content: ''; position: absolute; bottom: -150px; left: -150px;
+  width: 500px; height: 500px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(232,121,58,0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--brand-light); color: var(--brand-dark);
+  font-size: 0.82rem; font-weight: 600; padding: 6px 16px;
+  border-radius: 100px; margin-bottom: 1.5rem; letter-spacing: 0.02em;
+  animation: fadeUp 0.6s ease both;
+}
+.badge::before { content: ''; width: 6px; height: 6px; background: var(--brand); border-radius: 50%; }
+.hero h1 {
+  font-size: clamp(2.5rem, 6vw, 4.2rem); font-weight: 800; line-height: 1.1;
+  letter-spacing: -0.03em; max-width: 800px; animation: fadeUp 0.6s ease 0.1s both;
+}
+.hero h1 span { color: var(--brand); }
+.hero > p {
+  font-size: clamp(1.05rem, 2vw, 1.25rem); color: var(--text-secondary);
+  max-width: 600px; margin-top: 1.5rem; animation: fadeUp 0.6s ease 0.2s both;
+}
+.hero-cta {
+  margin-top: 2.5rem; display: flex; gap: 1rem; flex-wrap: wrap;
+  justify-content: center; animation: fadeUp 0.6s ease 0.3s both;
+}
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 28px; border-radius: 12px; font-family: var(--font);
+  font-size: 0.95rem; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s;
+}
+.btn-primary { background: var(--brand); color: white; }
+.btn-primary:hover { background: var(--brand-dark); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(27,107,74,0.25); }
+.btn-secondary { background: var(--surface); color: var(--text); border: 1.5px solid var(--border); }
+.btn-secondary:hover { border-color: var(--brand); color: var(--brand); }
+.scroll-hint { position: absolute; bottom: 2rem; font-size: 0.8rem; color: var(--text-tertiary); animation: bounce 2s infinite; }
+
+section { padding: 5rem 2rem; }
+.container { max-width: 1100px; margin: 0 auto; }
+.section-label {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--brand); margin-bottom: 0.75rem;
+}
+.section-title {
+  font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 800;
+  letter-spacing: -0.02em; line-height: 1.15; max-width: 700px;
+}
+.section-desc { font-size: 1.05rem; color: var(--text-secondary); max-width: 600px; margin-top: 1rem; }
+
+.pain-section { background: var(--surface); }
+.pain-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 3rem; }
+.pain-card {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 16px;
+  padding: 1.75rem; transition: all 0.2s;
+}
+.pain-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.pain-icon {
+  width: 44px; height: 44px; background: var(--accent-light); border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 1rem;
+}
+.pain-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; }
+.pain-card p { font-size: 0.9rem; color: var(--text-secondary); }
+
+.features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-top: 3rem; }
+.feature-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+  padding: 2rem; transition: all 0.25s; position: relative; overflow: hidden;
+}
+.feature-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--brand); transform: scaleX(0); transition: transform 0.3s; transform-origin: left;
+}
+.feature-card:hover::before { transform: scaleX(1); }
+.feature-card:hover { border-color: var(--brand); box-shadow: 0 8px 32px rgba(27,107,74,0.08); }
+.feature-num {
+  font-size: 0.72rem; font-weight: 700; color: var(--brand); background: var(--brand-light);
+  width: 28px; height: 28px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;
+}
+.feature-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+.feature-card p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
+.feature-tag {
+  display: inline-block; font-size: 0.72rem; font-weight: 600;
+  color: var(--brand-dark); background: var(--brand-light);
+  padding: 3px 10px; border-radius: 6px; margin-top: 0.75rem;
+}
+
+.comparison-section { background: var(--surface); }
+.comp-table { width: 100%; border-collapse: collapse; margin-top: 2.5rem; font-size: 0.88rem; }
+.comp-table th, .comp-table td { padding: 12px 16px; text-align: center; border-bottom: 1px solid var(--border); }
+.comp-table th:first-child, .comp-table td:first-child { text-align: left; font-weight: 600; }
+.comp-table thead th {
+  background: var(--bg); font-weight: 700; font-size: 0.82rem;
+  text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary);
+}
+.comp-table thead th.hl { color: var(--brand); background: var(--brand-light); }
+.comp-table td.hl { background: rgba(27,107,74,0.03); font-weight: 600; }
+.yes { color: var(--brand); font-weight: 700; }
+.no { color: var(--text-tertiary); }
+.partial { color: var(--accent); font-weight: 500; }
+
+.personas { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-top: 3rem; }
+.persona-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; text-align: center; }
+.persona-icon {
+  width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 1rem;
+  display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+}
+.persona-card:nth-child(1) .persona-icon { background: var(--brand-light); }
+.persona-card:nth-child(2) .persona-icon { background: var(--accent-light); }
+.persona-card:nth-child(3) .persona-icon { background: #EEE8FD; }
+.persona-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; }
+.persona-card p { font-size: 0.88rem; color: var(--text-secondary); }
+
+.closing-section {
+  background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand) 100%);
+  color: white; text-align: center; padding: 4rem 2rem;
+}
+.closing-section h2 {
+  font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 800; letter-spacing: -0.02em;
+}
+.closing-section p { font-size: 1.1rem; opacity: 0.85; max-width: 600px; margin: 1rem auto 0; }
+
+footer { text-align: center; padding: 2rem; font-size: 0.82rem; color: var(--text-tertiary); }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+.reveal { opacity: 0; transform: translateY(30px); transition: all 0.6s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 768px) {
+  section { padding: 3rem 1.25rem; }
+  .comp-table { font-size: 0.78rem; }
+  .comp-table th, .comp-table td { padding: 8px 6px; }
+  .features-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="badge">Připravujeme novou platformu</div>
+  <h1>Každý týden to samé dokola?<br><span>Tymko to vyřeší.</span></h1>
+  <p>Moderní platforma pro správu sportovních týmů a kroužků. Tréninky, zápasy, nominace, docházka, příspěvky — vše na jednom místě. Pro trenéry i rodiče.</p>
+  <div class="hero-cta">
+    <a href="#funkce" class="btn btn-primary">Prohlédnout funkce</a>
+    <a href="#srovnani" class="btn btn-secondary">Srovnání s konkurencí</a>
+  </div>
+  <div class="scroll-hint">&#8595; scrolluj dolů</div>
+</section>
+
+<section class="pain-section" id="problem">
+  <div class="container">
+    <div class="section-label">Problém</div>
+    <h2 class="section-title reveal">Znáte to. Pořád dokola.</h2>
+    <p class="section-desc reveal">Domlouvání tréninků přes pět různých kanálů. Ztracené zprávy. Neustálé dotazy. Nominace přes WhatsApp. A vy místo sportu řešíte administrativu.</p>
+    <div class="pain-grid">
+      <div class="pain-card reveal">
+        <div class="pain-icon">&#128172;</div>
+        <h3>WhatsApp chaos</h3>
+        <p>Nominace přes hlasování ve skupině, důležité zprávy zavalené GIFy a reakcemi. Kdo vlastně přijde na zápas?</p>
+      </div>
+      <div class="pain-card reveal">
+        <div class="pain-icon">&#128197;</div>
+        <h3>Kdo kam kdy jde?</h3>
+        <p>Tři děti, tři sporty, tři skupiny, tři trenéři. Kde je trénink — na hřišti nebo v hale? A hlavně — v kolik?</p>
+      </div>
+      <div class="pain-card reveal">
+        <div class="pain-icon">&#128176;</div>
+        <h3>Věčný boj s příspěvky</h3>
+        <p>Excelové tabulky dlužníků, naháněcí zprávy, ztracené platby. A nakonec nevíte, kdo zaplatil a kdo ne.</p>
+      </div>
+      <div class="pain-card reveal">
+        <div class="pain-icon">&#128566;</div>
+        <h3>Kdo se omluví, kdo ne</h3>
+        <p>Trenér neví, s kým může počítat. Rodič zapomene odhlásit dítě. Statistiku docházky si vedete na papíře.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="funkce">
+  <div class="container">
+    <div class="section-label">Řešení</div>
+    <h2 class="section-title reveal">Tymko — všechno na jednom místě</h2>
+    <p class="section-desc reveal">Navrženo trenéry pro trenéry. A s ohledem na rodiče, kteří chtějí mít přehled bez zbytečného chaosu.</p>
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <div class="feature-num">01</div>
+        <h3>Rodičovský dashboard</h3>
+        <p>Jeden login, všechny sporty všech dětí. Filtrovaný kalendář s barevným odlišením — fotbal zeleně, plavání modře. Máma vidí plavání, táta fotbaly.</p>
+        <span class="feature-tag">Unikátní funkce</span>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-num">02</div>
+        <h3>Smart nominace</h3>
+        <p>Trenér nominuje hráče &#8594; rodič potvrdí jedním tapem &#8594; připomínky 48h a 12h před deadlinem &#8594; kdo neodpoví, automaticky se posune náhradník. Konec WhatsApp hlasování.</p>
+        <span class="feature-tag">Unikátní funkce</span>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-num">03</div>
+        <h3>Dvouvrstvá docházka</h3>
+        <p>Rodič potvrdí účast předem. Trenér na místě udělá prezenčku. Systém ukáže: kdo řekl že přijde a přišel, kdo řekl a nepřišel, kdo se omluvil. Statistika spolehlivosti pro každého hráče.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-num">04</div>
+        <h3>Hromadné omluvenky</h3>
+        <p>Dítě nemocné? Jedete na dovolenou? Jedno kliknutí — omluvíte ze všech tréninků na příští 2 týdny. Trenér to vidí automaticky, žádné proklikávání událostí.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-num">05</div>
+        <h3>Potvrzení z emailu</h3>
+        <p>Rodič dostane email "Trénink U7 — středa 17:00" s dvěma tlačítky: Potvrzuji / Omlouvám se. Jedno kliknutí, hotovo. Bez nutnosti otevřít appku.</p>
+        <span class="feature-tag">Unikátní funkce</span>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-num">06</div>
+        <h3>Checklisty vybavení</h3>
+        <p>Zápas venku? Kopačky, chrániče, dresy, lahev s pitím — přehledný checklist přímo v události. Šablony per sport, plně editovatelné klubem.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-num">07</div>
+        <h3>Platby a příspěvky</h3>
+        <p>Vytvořte platbu pro celý tým jedním klikem. Každý rodič dostane QR kód pro okamžitý bankovní převod. Přehled kdo zaplatil, automatické poděkování, PDF potvrzení ke stažení.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-num">08</div>
+        <h3>Diskuze u událostí</h3>
+        <p>Kdo bere auto? Kolik míst máte? Řešte logistiku přímo u konkrétního zápasu — ne v nekonečném WhatsApp threadu kde se to ztratí.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-num">09</div>
+        <h3>Kalendář do mobilu</h3>
+        <p>Personalizované iCal feedy — přidejte si tréninky přímo do Google Calendar nebo Apple Calendar. Sdílejte odkaz s partnerem. Filtrujte per dítě nebo sport.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-num">10</div>
+        <h3>GDPR a souhlasy</h3>
+        <p>Souhlas s focením, zpracování osobních údajů — rodič odklikne v portálu per dítě. Fotky se nezobrazují bez souhlasu. Auditovatelné, transparentní.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-num">11</div>
+        <h3>Flexibilní role</h3>
+        <p>Jste trenér přípravky a zároveň rodič staršího kluka v žácích? Tymko to zvládne — jedna identita, různé role v různých týmech. Žádné přepínání účtů.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-num">12</div>
+        <h3>Týmová zeď s anketami</h3>
+        <p>Oznámení, organizační věci, fotky. Hlasování: "Jakou barvu dresů?" nebo "Jedeme mikrobusem nebo auty?" Vše na jednom místě.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="comparison-section" id="srovnani">
+  <div class="container">
+    <div class="section-label">Srovnání</div>
+    <h2 class="section-title reveal">Jak si stojíme proti konkurenci</h2>
+    <p class="section-desc reveal">Tymko kombinuje to nejlepší z existujících řešení a přidává funkce, které nikdo jiný nemá.</p>
+    <table class="comp-table reveal">
+      <thead>
+        <tr>
+          <th>Funkce</th>
+          <th class="hl">Tymko</th>
+          <th>EOS</th>
+          <th>Týmuj</th>
+          <th>Spond</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Česky nativně</td><td class="hl yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="partial">lokalizace</td></tr>
+        <tr><td>Cross-sport dashboard rodiče</td><td class="hl yes">&#10003;</td><td class="no">&#10005;</td><td class="no">&#10005;</td><td class="no">&#10005;</td></tr>
+        <tr><td>Smart nominace s deadlines</td><td class="hl yes">&#10003;</td><td class="partial">základní</td><td class="no">&#10005;</td><td class="no">&#10005;</td></tr>
+        <tr><td>Dvouvrstvá docházka</td><td class="hl yes">&#10003;</td><td class="partial">jen RSVP</td><td class="partial">jen RSVP</td><td class="partial">jen RSVP</td></tr>
+        <tr><td>Hromadné omluvenky</td><td class="hl yes">&#10003;</td><td class="partial">schované</td><td class="no">&#10005;</td><td class="no">&#10005;</td></tr>
+        <tr><td>Potvrzení z emailu</td><td class="hl yes">&#10003;</td><td class="no">&#10005;</td><td class="no">&#10005;</td><td class="no">&#10005;</td></tr>
+        <tr><td>Checklisty vybavení</td><td class="hl yes">&#10003;</td><td class="no">&#10005;</td><td class="no">&#10005;</td><td class="no">&#10005;</td></tr>
+        <tr><td>Platby + QR kód</td><td class="hl yes">&#10003;</td><td class="yes">&#10003; + auto</td><td class="partial">základní</td><td class="yes">&#10003;</td></tr>
+        <tr><td>iCal feedy (per dítě)</td><td class="hl yes">&#10003;</td><td class="partial">per tým</td><td class="no">&#10005;</td><td class="partial">vše</td></tr>
+        <tr><td>GDPR souhlasy</td><td class="hl yes">&#10003;</td><td class="yes">&#10003;</td><td class="no">&#10005;</td><td class="partial">základní</td></tr>
+        <tr><td>Freemium (zdarma start)</td><td class="hl yes">&#10003;</td><td class="no">na dotaz</td><td class="partial">od 25 čl.</td><td class="yes">&#10003;</td></tr>
+        <tr><td>Self-service registrace</td><td class="hl yes">&#10003;</td><td class="no">pozvánka</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="prokoho">
+  <div class="container">
+    <div class="section-label">Pro koho</div>
+    <h2 class="section-title reveal">Tymko pomáhá všem v klubu</h2>
+    <div class="personas">
+      <div class="persona-card reveal">
+        <div class="persona-icon">&#9917;</div>
+        <h3>Trenér</h3>
+        <p>Plánujte tréninky, nominujte na zápasy, dělejte prezenčku z mobilu. Žádný Excel, žádné naháněcí zprávy. Víc času na sport, míň na administrativu.</p>
+      </div>
+      <div class="persona-card reveal">
+        <div class="persona-icon">&#128106;</div>
+        <h3>Rodič</h3>
+        <p>Jeden přehled přes všechny sporty všech dětí. Potvrzení účasti jedním klikem. Víte kdy, kde a co vzít. Sdílejte kalendář s partnerem.</p>
+      </div>
+      <div class="persona-card reveal">
+        <div class="persona-icon">&#127942;</div>
+        <h3>Správce klubu</h3>
+        <p>Přehled o členské základně, příspěvcích a souhlasech. GDPR pod kontrolou. Podklady pro dotace. Celý klub na jednom místě.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="closing-section">
+  <div class="container">
+    <h2 class="reveal">Tymko. Správa týmů bez chaosu.</h2>
+    <p class="reveal">Připravujeme moderní platformu pro české sportovní oddíly a kroužky. Brzy spustíme.</p>
+  </div>
+</section>
+
+<footer>
+  <p>&#169; 2026 Tymko. Projekt v přípravě.</p>
+</footer>
+
+<script>
+var observer = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry, i) {
+    if (entry.isIntersecting) {
+      setTimeout(function() { entry.target.classList.add('visible'); }, i * 80);
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+document.querySelectorAll('.reveal').forEach(function(el) { observer.observe(el); });
+</script>
+
+</body>
+</html>
